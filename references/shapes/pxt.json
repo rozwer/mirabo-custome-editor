@@ -1,0 +1,15 @@
+{
+    "name": "shapes",
+    "description": "Geometric shape building.",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "shapes.ts"
+    ],
+    "targetVersions": {
+        "target": "2.1.27",
+        "pxt": "12.1.17"
+    },
+    "icon": "https://cdn.makecode.com/blob/ff8d69ad399baa14952d86d6c2dca7b37147dc80/static/libs/shapes.png"
+}

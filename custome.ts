@@ -1,3 +1,5 @@
+/// <reference path="./references/core/all.d.ts" />
+
 // Enumで方向を定義（左と右）
 enum Turndirection {
     //% block="ひだり"

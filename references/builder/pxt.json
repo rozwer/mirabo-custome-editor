@@ -1,0 +1,16 @@
+{
+    "name": "builder",
+    "description": "A 3D builder interface.",
+    "dependencies": {
+        "core": "*",
+        "shapes": "*"
+    },
+    "files": [
+        "builder.ts"
+    ],
+    "targetVersions": {
+        "target": "2.1.27",
+        "pxt": "12.1.17"
+    },
+    "icon": "https://cdn.makecode.com/blob/f59d5d4c631f990587590be4e9362cba36a72a1f/static/libs/builder.png"
+}

@@ -1,5 +1,38 @@
 /// <reference no-default-lib="true"/>
 
+// Iterator support for for...of
+interface SymbolConstructor {
+    readonly iterator: symbol;
+}
+declare var Symbol: SymbolConstructor;
+
+interface Iterator<T> {
+    next(value?: any): IteratorResult<T>;
+    return?(value?: any): IteratorResult<T>;
+    throw?(e?: any): IteratorResult<T>;
+}
+
+interface IteratorResult<T> {
+    done: boolean;
+    value: T;
+}
+
+interface Iterable<T> {
+    [Symbol.iterator](): Iterator<T>;
+}
+
+interface IterableIterator<T> extends Iterator<T> {
+    [Symbol.iterator](): IterableIterator<T>;
+}
+
+interface Array<T> {
+    [Symbol.iterator](): IterableIterator<T>;
+}
+
+interface String {
+    [Symbol.iterator](): IterableIterator<string>;
+}
+
 interface Array<T> {
     /**
       * Get or set the length of an array. This number is one more than the index of the last element the array.
