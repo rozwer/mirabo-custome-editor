@@ -76,11 +76,12 @@ namespace ブロック設置 {
      * @param num ブロックの個数, eg: 64
      * @param block ブロックの種類
      */
-    //% block="エージェントのカバンの %pos ばんめに %num この %block をいれる"
+    //% block="エージェントのカバンの $pos ばんめに $num この $block をいれる"
     //% pos.min=1 pos.max=27
     //% num.min=1 num.max=64
     //% block.shadow=minecraftBlock
-    export function giveToAgent1(pos: number, num: number, block: Block): void {
+    //% block.defl=Block.Stone
+    export function giveToAgent1(pos: number, num: number, block: number): void {
         agent.setItem(block, num, pos);
     }
 }
@@ -178,7 +179,7 @@ namespace エージェント操作 {
 
     /**
      * チャットコマンドをトリガーにして動作を設定します
-     * @param command チャットコマンド, eg: "start"
+     * @param command チャットコマンド, eg: "1"
      * @param handler 実行される内容
      */
     //% block="チャットコマンド %command といわれたときエージェントは"
@@ -252,10 +253,11 @@ namespace 相対座標 {
      * @param z Z方向の相対座標, eg: 0
      * @param block 配置するブロック
      */
-    //% block="スタート地点から X:%x|Y:%y|Z:%z に %block をおく"
+    //% block="スタート地点から X:$x|Y:$y|Z:$z に $block をおく"
     //% block.shadow=minecraftBlock
+    //% block.defl=Block.Stone
     //% weight=80
-    export function placeBlockFromStart(x: number, y: number, z: number, block: Block): void {
+    export function placeBlockFromStart(x: number, y: number, z: number, block: number): void {
         if (!isStartSet) {
             player.say("先にスタート地点を設定してください");
             return;
@@ -273,10 +275,11 @@ namespace 相対座標 {
      * @param y2 終了Y座標, eg: 5
      * @param z2 終了Z座標, eg: 5
      */
-    //% block="%block で スタートから X:%x1|Y:%y1|Z:%z1 から X:%x2|Y:%y2|Z:%z2 までうめる"
+    //% block="$block で スタートから X:$x1|Y:$y1|Z:$z1 から X:$x2|Y:$y2|Z:$z2 までうめる"
     //% block.shadow=minecraftBlock
+    //% block.defl=Block.Stone
     //% weight=70
-    export function fillBlocksFromStart(block: Block, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): void {
+    export function fillBlocksFromStart(block: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): void {
         if (!isStartSet) {
             player.say("先にスタート地点を設定してください");
             return;
@@ -351,10 +354,11 @@ namespace 相対座標 {
      * @param up 上方向の距離, eg: 0
      * @param block 配置するブロック
      */
-    //% blockId=placeBlockFromStartLocal block="スタート地点から まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
+    //% blockId=placeBlockFromStartLocal block="スタート地点から まえ:$forward|みぎ:$right|うえ:$up に $block をおく"
     //% block.shadow=minecraftBlock
+    //% block.defl=Block.Stone
     //% weight=75
-    export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: Block): void {
+    export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: number): void {
         if (!isStartSet) {
             player.say("先にスタート地点を設定してください");
             return;
@@ -374,10 +378,11 @@ namespace 相対座標 {
      * @param right2 終了右方向, eg: 5
      * @param up2 終了上方向, eg: 5
      */
-    //% blockId=fillBlocksFromStartLocal block="%block で スタートから まえ:%forward1|みぎ:%right1|うえ:%up1 から まえ:%forward2|みぎ:%right2|うえ:%up2 までうめる"
+    //% blockId=fillBlocksFromStartLocal block="$block で スタートから まえ:$forward1|みぎ:$right1|うえ:$up1 から まえ:$forward2|みぎ:$right2|うえ:$up2 までうめる"
     //% block.shadow=minecraftBlock
+    //% block.defl=Block.Stone
     //% weight=65
-    export function fillBlocksFromStartLocal(block: Block, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
+    export function fillBlocksFromStartLocal(block: number, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
         if (!isStartSet) {
             player.say("先にスタート地点を設定してください");
             return;
@@ -832,13 +837,13 @@ namespace 遊び用 {
      * @param roofBlock 屋根の素材
      * @param carpetBlock カーペットの色（Airを選ぶとカーペットなし）
      */
-    //% block="いえをつくる|かべ %wallBlock|ゆか %floorBlock|やね %roofBlock|カーペット %carpetBlock"
+    //% block="いえをつくる|かべ $wallBlock|ゆか $floorBlock|やね $roofBlock|カーペット $carpetBlock"
     //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.PlanksOak
     //% floorBlock.shadow=minecraftBlock floorBlock.defl=Block.Glowstone
     //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.LogOak
     //% carpetBlock.shadow=minecraftBlock carpetBlock.defl=Block.RedCarpet
     //% expandableArgumentMode="enabled"
-    export function buildCustomHouse(wallBlock?: Block, floorBlock?: Block, roofBlock?: Block, carpetBlock?: Block): void {
+    export function buildCustomHouse(wallBlock?: number, floorBlock?: number, roofBlock?: number, carpetBlock?: number): void {
         // デフォルト値の設定
         if (wallBlock === undefined) wallBlock = PLANKS_OAK;
         if (floorBlock === undefined) floorBlock = GLOWSTONE;
@@ -957,12 +962,12 @@ namespace 遊び用 {
      * @param pillarBlock 柱の素材
      * @param withElevator エレベーターを統合するか（左奥に配置）
      */
-    //% block="%max かいだてのマンションをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock|エレベーター %withElevator"
+    //% block="$max かいだてのマンションをたてる|かべ $wallBlock|まど $windowBlock|はしら $pillarBlock|エレベーター $withElevator"
     //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.StoneBricks
     //% windowBlock.shadow=minecraftBlock windowBlock.defl=Block.Glass
     //% pillarBlock.shadow=minecraftBlock pillarBlock.defl=Block.ChiseledStoneBricks
     //% expandableArgumentMode="enabled"
-    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block, withElevator?: OnOff) {
+    export function buildCustomMansion(max: number, wallBlock?: number, windowBlock?: number, pillarBlock?: number, withElevator?: OnOff) {
         // デフォルト値の設定
         if (wallBlock === undefined) wallBlock = STONE_BRICKS;
         if (windowBlock === undefined) windowBlock = GLASS;
@@ -1219,11 +1224,11 @@ namespace 遊び用 {
      * @param fenceBlock 柵の素材
      * @param roofBlock 天井の素材
      */
-    //% block="どうぶつえんをつくる|さく %fenceBlock|てんじょう %roofBlock"
+    //% block="どうぶつえんをつくる|さく $fenceBlock|てんじょう $roofBlock"
     //% fenceBlock.shadow=minecraftBlock fenceBlock.defl=Block.OakFence
     //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.Glass
     //% expandableArgumentMode="enabled"
-    export function buildCustomZoo(fenceBlock?: Block, roofBlock?: Block): void {
+    export function buildCustomZoo(fenceBlock?: number, roofBlock?: number): void {
         // デフォルト値の設定
         if (fenceBlock === undefined) fenceBlock = OAK_FENCE;
         if (roofBlock === undefined) roofBlock = GLASS;
@@ -1414,9 +1419,10 @@ namespace 遊び用 {
      * @param num ブロックの個数, eg: 64
      * @param NOB ブロックの種類
      */
-    //% block="(自由時間用)エージェントのカバンの %pos ばんめに %num この %NOB をいれる"
+    //% block="(自由時間用)エージェントのカバンの $pos ばんめに $num この $NOB をいれる"
     //% NOB.shadow=minecraftBlock
-    export function giveToAgent2(pos: number, num: number, NOB: Block) {
+    //% NOB.defl=Block.Stone
+    export function giveToAgent2(pos: number, num: number, NOB: number) {
         agent.setItem(NOB, num, pos)
     }
 

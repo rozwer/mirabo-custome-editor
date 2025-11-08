@@ -1,26 +1,29 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "strict": false,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "noEmit": true,
-    "downlevelIteration": true
-  },
-  "include": [
-    "custome.ts",
-    "main.ts",
-    "references/**/*.ts",
-    "references/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "lib": [
+            "ES2020"
+        ],
+        "strict": false,
+        "noImplicitAny": false,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "downlevelIteration": true
+    },
+    "include": [
+        "custome.ts",
+        "main.ts",
+        "references/**/*.ts",
+        "references/**/*.d.ts",
+        "ref.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }
