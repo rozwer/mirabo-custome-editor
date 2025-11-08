@@ -838,47 +838,67 @@ namespace 先生用 {
 //% weight=100000000101 color=#4682b4 icon="" block="遊び用カテゴリ"
 namespace 遊び用 {
     /**
-     * 赤いカーペット付きの家を建設する
-     * プレイヤーの現在位置を基準に、オーク材の家を自動生成します
+     * カスタマイズ可能な家を建設する
+     * プレイヤーの現在位置を基準に家を自動生成します
+     * @param wallBlock 壁の素材
+     * @param floorBlock 床の素材
+     * @param roofBlock 屋根の素材
+     * @param carpetBlock カーペットの色（Airを選ぶとカーペットなし）
      */
-    //% block="カーペットつきのいえをつくる"
-    export function home1(): void {
+    //% block="いえをつくる|かべ %wallBlock|ゆか %floorBlock|やね %roofBlock|かーぺっと %carpetBlock"
+    //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.PlanksOak
+    //% floorBlock.shadow=minecraftBlock floorBlock.defl=Block.Glowstone
+    //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.LogOak
+    //% carpetBlock.shadow=minecraftBlock carpetBlock.defl=Block.RedCarpet
+    //% expandableArgumentMode="enabled"
+    export function buildCustomHouse(wallBlock?: Block, floorBlock?: Block, roofBlock?: Block, carpetBlock?: Block): void {
+        // デフォルト値の設定
+        if (wallBlock === undefined) wallBlock = PLANKS_OAK;
+        if (floorBlock === undefined) floorBlock = GLOWSTONE;
+        if (roofBlock === undefined) roofBlock = LOG_OAK;
+        if (carpetBlock === undefined) carpetBlock = RED_CARPET;
+
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
         let playerX = playerPos.getValue(Axis.X);
         let playerY = playerPos.getValue(Axis.Y);
         let playerZ = playerPos.getValue(Axis.Z);
 
+        // 家の壁
         blocks.fill(
-            PLANKS_OAK,
+            wallBlock,
             world(playerX + 13, playerY, playerZ + 5),
             world(playerX + 3, playerY + 6, playerZ - 5),
             FillOperation.Hollow
         )
+
+        // 柱（家の四隅）
         blocks.fill(
-            LOG_OAK,
+            wallBlock,
             world(playerX + 3, playerY, playerZ + 5),
             world(playerX + 3, playerY + 6, playerZ + 5),
             FillOperation.Hollow
         )
         blocks.fill(
-            LOG_OAK,
+            wallBlock,
             world(playerX + 13, playerY, playerZ + 5),
             world(playerX + 13, playerY + 6, playerZ + 5),
             FillOperation.Hollow
         )
         blocks.fill(
-            LOG_OAK,
+            wallBlock,
             world(playerX + 13, playerY, playerZ - 5),
             world(playerX + 13, playerY + 6, playerZ - 5),
             FillOperation.Hollow
         )
         blocks.fill(
-            LOG_OAK,
+            wallBlock,
             world(playerX + 3, playerY, playerZ - 5),
             world(playerX + 3, playerY + 6, playerZ - 5),
             FillOperation.Hollow
         )
+
+        // 玄関の空間
         blocks.fill(
             AIR,
             world(playerX + 3, playerY + 1, playerZ - 0),
@@ -886,40 +906,56 @@ namespace 遊び用 {
             FillOperation.Hollow
         )
         blocks.place(DARK_OAK_DOOR, world(playerX + 3, playerY + 1, playerZ - 0))
+
+        // 外周の床（階段部分）
         blocks.fill(
             COBBLESTONE,
             world(playerX + 15, playerY, playerZ + 7),
             world(playerX + 1, playerY, playerZ - 7),
             FillOperation.Hollow
         )
+
+        // 内側の床（光源）
         blocks.fill(
-            GLOWSTONE,
+            floorBlock,
             world(playerX + 12, playerY, playerZ + 4),
             world(playerX + 4, playerY, playerZ - 4),
             FillOperation.Hollow
         )
+
+        // さらに内側の床
         blocks.fill(
-            PLANKS_OAK,
+            wallBlock,
             world(playerX + 11, playerY, playerZ + 3),
             world(playerX + 5, playerY, playerZ - 3),
             FillOperation.Hollow
         )
-        blocks.place(GLOWSTONE, world(playerX + 8, playerY, playerZ - 0))
-        blocks.fill(
-            RED_CARPET,
-            world(playerX + 12, playerY + 1, playerZ + 4),
-            world(playerX + 4, playerY + 1, playerZ - 4),
-            FillOperation.Hollow
-        )
+
+        // 中央の光源
+        blocks.place(floorBlock, world(playerX + 8, playerY, playerZ - 0))
+
+        // カーペット（Airでない場合のみ配置）
+        if (carpetBlock != AIR) {
+            blocks.fill(
+                carpetBlock,
+                world(playerX + 12, playerY + 1, playerZ + 4),
+                world(playerX + 4, playerY + 1, playerZ - 4),
+                FillOperation.Hollow
+            )
+        }
+
+        // 外側のステップ
         blocks.place(COBBLESTONE_SLAB, world(playerX + 1, playerY, playerZ - 0))
+
+        // 屋根
         blocks.fill(
-            LOG_OAK,
+            roofBlock,
             world(playerX + 14, playerY + 6, playerZ + 6),
             world(playerX + 2, playerY + 6, playerZ - 6),
             FillOperation.Replace
         )
         blocks.fill(
-            LOG_OAK,
+            roofBlock,
             world(playerX + 13, playerY + 7, playerZ + 5),
             world(playerX + 3, playerY + 7, playerZ - 5),
             FillOperation.Replace
@@ -927,11 +963,23 @@ namespace 遊び用 {
     }
 
     /**
-     * 指定した階数のマンションを建設する
+     * 指定した階数のカスタマイズ可能なマンションを建設する
      * @param max マンションの階数, eg: 3
+     * @param wallBlock 壁の素材
+     * @param windowBlock 窓の素材
+     * @param pillarBlock 柱の素材
      */
-    //% block="%max　かいだてのマンションをたてる"
-    export function ManS(max: number) {
+    //% block="%max かいだてのまんしょんをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock"
+    //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.StoneBricks
+    //% windowBlock.shadow=minecraftBlock windowBlock.defl=Block.Glass
+    //% pillarBlock.shadow=minecraftBlock pillarBlock.defl=Block.ChiseledStoneBricks
+    //% expandableArgumentMode="enabled"
+    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block) {
+        // デフォルト値の設定
+        if (wallBlock === undefined) wallBlock = STONE_BRICKS;
+        if (windowBlock === undefined) windowBlock = GLASS;
+        if (pillarBlock === undefined) pillarBlock = CHISELED_STONE_BRICKS;
+
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
         let playerX = playerPos.getValue(Axis.X);
@@ -942,42 +990,46 @@ namespace 遊び用 {
         player.say("10びょううごかないでね")
         for (let カウンター = 0; カウンター <= max - 1; カウンター++) {
             floor = カウンター + 1
+            // 各階の壁
             blocks.fill(
-                STONE_BRICKS,
+                wallBlock,
                 world(playerX + 14, playerY + (floor - 1) * 5, playerZ + 6),
                 world(playerX + 3, playerY + (floor - 0) * 5, playerZ - 5),
                 FillOperation.Hollow
             )
+            // 窓
             blocks.fill(
-                GLASS,
+                windowBlock,
                 world(playerX + 14, playerY + (floor - 1) * 5 + 2, playerZ + 6),
                 world(playerX + 3, playerY + (floor - 1) * 5 + 2, playerZ - 5),
                 FillOperation.Outline
             )
+            // 四隅の柱（装飾）
             blocks.fill(
-                CHISELED_STONE_BRICKS,
+                pillarBlock,
                 world(playerX + 3, playerY + (floor - 1) * 5 + 2, playerZ - 5),
                 world(playerX + 3, playerY + (floor - 1) * 5 + 2, playerZ - 5),
                 FillOperation.Outline
             )
             blocks.fill(
-                CHISELED_STONE_BRICKS,
+                pillarBlock,
                 world(playerX + 3, playerY + (floor - 1) * 5 + 2, playerZ + 6),
                 world(playerX + 3, playerY + (floor - 1) * 5 + 2, playerZ + 6),
                 FillOperation.Outline
             )
             blocks.fill(
-                CHISELED_STONE_BRICKS,
+                pillarBlock,
                 world(playerX + 14, playerY + (floor - 1) * 5 + 2, playerZ - 5),
                 world(playerX + 14, playerY + (floor - 1) * 5 + 2, playerZ - 5),
                 FillOperation.Outline
             )
             blocks.fill(
-                CHISELED_STONE_BRICKS,
+                pillarBlock,
                 world(playerX + 14, playerY + (floor - 1) * 5 + 2, playerZ + 6),
                 world(playerX + 14, playerY + (floor - 1) * 5 + 2, playerZ + 6),
                 FillOperation.Outline
             )
+            // 内部空間
             blocks.fill(
                 AIR,
                 world(playerX + 13, playerY + (floor - 1) * 5 + 2, playerZ + 5),
@@ -1101,41 +1153,54 @@ namespace 遊び用 {
     }
 
     /**
-     * ガラスの天井付き動物園を建設し、様々な動物をスポーンさせる
+     * カスタマイズ可能な動物園を建設し、様々な動物をスポーンさせる
      * 完成後、風船アイテムがプレイヤーに与えられます
+     * @param fenceBlock 柵の素材
+     * @param roofBlock 天井の素材
      */
-    //% block="どうぶつえんをつくる"
-    export function Zoo(): void {
+    //% block="どうぶつえんをつくる|さく %fenceBlock|てんじょう %roofBlock"
+    //% fenceBlock.shadow=minecraftBlock fenceBlock.defl=Block.OakFence
+    //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.Glass
+    //% expandableArgumentMode="enabled"
+    export function buildCustomZoo(fenceBlock?: Block, roofBlock?: Block): void {
+        // デフォルト値の設定
+        if (fenceBlock === undefined) fenceBlock = OAK_FENCE;
+        if (roofBlock === undefined) roofBlock = GLASS;
+
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
         let playerX = playerPos.getValue(Axis.X);
         let playerY = playerPos.getValue(Axis.Y);
         let playerZ = playerPos.getValue(Axis.Z);
 
+        // 柵（外枠）
         blocks.fill(
-            OAK_FENCE,
+            fenceBlock,
             world(playerX - 10, playerY, playerZ + 3),
             world(playerX + 10, playerY, playerZ + 24),
             FillOperation.Replace
         )
+        // 内部空間
         blocks.fill(
             AIR,
             world(playerX - 9, playerY, playerZ + 4),
             world(playerX + 9, playerY, playerZ + 23),
             FillOperation.Replace
         )
+        // 天井（2層）
         blocks.fill(
-            GLASS,
+            roofBlock,
             world(playerX - 10, playerY + 10, playerZ + 3),
             world(playerX + 10, playerY + 10, playerZ + 24),
             FillOperation.Replace
         )
         blocks.fill(
-            GLASS,
+            roofBlock,
             world(playerX - 10, playerY + 9, playerZ + 3),
             world(playerX + 10, playerY + 9, playerZ + 24),
             FillOperation.Replace
         )
+        // 天井内部の空気
         blocks.fill(
             AIR,
             world(playerX - 9, playerY + 9, playerZ + 4),
@@ -1178,88 +1243,6 @@ namespace 遊び用 {
         player.say("ふうせんでみぎクリックしてみよう")
     }
 
-    /**
-     * カーペット無しのシンプルな家を建設する
-     * プレイヤーの現在位置を基準に、オーク材の家を自動生成します
-     */
-    //% block="カーペットなしのいえをつくる"
-    export function home2(): void {
-        // プレイヤーの現在位置を取得
-        let playerPos = player.position();
-        let playerX = playerPos.getValue(Axis.X);
-        let playerY = playerPos.getValue(Axis.Y);
-        let playerZ = playerPos.getValue(Axis.Z);
-
-        blocks.fill(
-            PLANKS_OAK,
-            world(playerX - 5, playerY, playerZ + 3),
-            world(playerX + 5, playerY + 6, playerZ + 13),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            LOG_OAK,
-            world(playerX - 5, playerY, playerZ + 3),
-            world(playerX - 5, playerY + 6, playerZ + 3),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            LOG_OAK,
-            world(playerX - 5, playerY, playerZ + 13),
-            world(playerX - 5, playerY + 6, playerZ + 13),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            LOG_OAK,
-            world(playerX + 5, playerY, playerZ + 13),
-            world(playerX + 5, playerY + 6, playerZ + 13),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            LOG_OAK,
-            world(playerX + 5, playerY, playerZ + 3),
-            world(playerX + 5, playerY + 6, playerZ + 3),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            AIR,
-            world(playerX + 0, playerY + 1, playerZ + 3),
-            world(playerX + 0, playerY + 2, playerZ + 3),
-            FillOperation.Hollow
-        )
-        blocks.place(DARK_OAK_DOOR, world(playerX + 0, playerY + 1, playerZ + 3))
-        blocks.fill(
-            COBBLESTONE,
-            world(playerX - 7, playerY, playerZ + 1),
-            world(playerX + 7, playerY, playerZ + 15),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            GLOWSTONE,
-            world(playerX - 4, playerY, playerZ + 4),
-            world(playerX + 4, playerY, playerZ + 12),
-            FillOperation.Hollow
-        )
-        blocks.fill(
-            PLANKS_OAK,
-            world(playerX - 3, playerY, playerZ + 5),
-            world(playerX + 3, playerY, playerZ + 11),
-            FillOperation.Hollow
-        )
-        blocks.place(GLOWSTONE, world(playerX + 0, playerY, playerZ + 8))
-        blocks.place(COBBLESTONE_SLAB, world(playerX + 0, playerY, playerZ + 1))
-        blocks.fill(
-            LOG_OAK,
-            world(playerX - 6, playerY + 6, playerZ + 2),
-            world(playerX + 6, playerY + 6, playerZ + 14),
-            FillOperation.Replace
-        )
-        blocks.fill(
-            LOG_OAK,
-            world(playerX - 5, playerY + 7, playerZ + 3),
-            world(playerX + 5, playerY + 7, playerZ + 13),
-            FillOperation.Replace
-        )
-    }
 
     /**
      * エージェントの前方にスノーゴーレムを生成する
