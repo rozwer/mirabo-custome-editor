@@ -46,7 +46,7 @@ namespace ブロック設置 {
      * エージェントのカバンの指定したスロットを手に持つ
      * @param pos スロット番号（1-27）, eg: 1
      */
-    //% block="エージェントのカバンの %pos ばんめをてにもつ"
+    //% block="えーじぇんとのかばんの %pos ばんめをてにもつ"
     export function getAgentItem(pos: number): void {
         agent.setSlot(pos);
     }
@@ -55,7 +55,8 @@ namespace ブロック設置 {
      * エージェントに指定した方向にブロックを置かせる
      * @param dir 設置する方向
      */
-    //% block="エージェントに %dir にブロックをおかせる"
+    //% block="えーじぇんとに %dir にぶろっくをおかせる"
+    //% dir.shadow=minecraftAgentSixDirection
     export function placeBlock(dir: SixDirection): void {
         agent.place(dir);
     }
@@ -66,7 +67,7 @@ namespace ブロック設置 {
      * @param num ブロックの個数, eg: 64
      * @param block ブロックの種類
      */
-    //% block="エージェントのカバンの %pos ばんめに %num この %block をいれる"
+    //% block="えーじぇんとのかばんの %pos ばんめに %num この %block をいれる"
     //% block.shadow=minecraftBlock
     export function giveToAgent1(pos: number, num: number, block: Block): void {
         agent.setItem(block, num, pos);
@@ -75,8 +76,8 @@ namespace ブロック設置 {
 
 //% weight=1000000001001 color=#dc143c icon="" block="エージェント操作"
 namespace エージェント操作 {
-    // 地面変更機能のON/OFFフラグ
-    let floorChangeEnabled: boolean = false;
+    // 地面変更機能のON/OFFフラグ（デフォルトON）
+    let floorChangeEnabled: boolean = true;
 
     /**
      * エージェントを左または右に向かせる
@@ -92,33 +93,27 @@ namespace エージェント操作 {
     }
 
     /**
-     * 地面変更機能をONにする
+     * 地面変更機能のON/OFFを切り替える（トグル）
      */
-    //% block="ゆかをかえるきのうをONにする"
+    //% block="ゆかをかえるきのうをきりかえる"
     //% weight=95
-    export function enableFloorChange(): void {
-        floorChangeEnabled = true;
-        player.say("床変更機能ON");
+    export function toggleFloorChange(): void {
+        floorChangeEnabled = !floorChangeEnabled;
+        if (floorChangeEnabled) {
+            player.say("床変更機能ON");
+        } else {
+            player.say("床変更機能OFF");
+        }
     }
 
     /**
-     * 地面変更機能をOFFにする
-     */
-    //% block="ゆかをかえるきのうをOFFにする"
-    //% weight=94
-    export function disableFloorChange(): void {
-        floorChangeEnabled = false;
-        player.say("床変更機能OFF");
-    }
-
-    /**
-     * エージェントを指定したステップ数前進させる（地面変更機能付き）
+     * エージェントを指定したステップ数前進させる
      * 地面変更機能がONの場合、移動後の位置の足元（Y-1）にガラスブロックを配置します
      * @param steps 移動するステップ数, eg: 5
      */
     //% block="エージェントを %steps すすめる"
     //% weight=100
-    export function moveAgentAndVisualize(steps: number): void {
+    export function moveAgent(steps: number): void {
         for (let i = 0; i < steps; i++) {
             // 先に移動
             agent.move(FORWARD, 1);
@@ -130,7 +125,7 @@ namespace エージェント操作 {
                 let y = position.getValue(Axis.Y);
                 let z = position.getValue(Axis.Z);
 
-                // 足元にガラスブロックを配置（非同期で実行）
+                // 足元にガラスブロックを配置
                 blocks.place(GLASS, world(x, y - 1, z));
             }
 
@@ -138,62 +133,60 @@ namespace エージェント操作 {
         }
     }
 
-    /**
-     * エージェントを指定したステップ数前進させる（地面変更なし）
-     * @param steps 移動するステップ数, eg: 5
-     */
-    //% block="エージェントを %steps すすめる(ゆかをかえない)"
-    //% weight=99
-    export function moveAgent(steps: number): void {
-        for (let i = 0; i < steps; i++) {
-            agent.move(FORWARD, 1);
-            loops.pause(50);
-        }
-    }
-    /**
-     * エージェントをプレイヤーの位置にテレポートさせ、同じ方向を向かせる
-     * プレイヤーの向き（-180～180度）を4方向（北、東、西、南）に変換し、
-     * エージェントが同じ方向を向くまで左に回転させます
-     */
-    //% block="エージェントをプレイヤーのところによび、おなじほうこうをむかせる"
-    //% weight=90
-    export function alignAgentToPlayer(): void {
-        let attempts = 0;
-        agent.teleportToPlayer();
+    // 向き合わせ機能のON/OFFフラグ（デフォルトON）
+    let alignOrientationEnabled: boolean = true;
 
-        const playerDirection = player.getOrientation();
-        let targetDirection: number;
-
-        // プレイヤーの向きを4方向に変換
-        if (playerDirection >= -45 && playerDirection < 45) {
-            targetDirection = 0; // 北
-        } else if (playerDirection >= 45 && playerDirection < 135) {
-            targetDirection = 90; // 東
-        } else if (playerDirection >= -135 && playerDirection < -45) {
-            targetDirection = -90; // 西
+    /**
+     * エージェント呼び出し時の向き合わせ機能のON/OFFを切り替える（トグル）
+     */
+    //% block="エージェントをよぶときにむきをあわせるをきりかえる"
+    //% weight=91
+    export function toggleAlignOrientation(): void {
+        alignOrientationEnabled = !alignOrientationEnabled;
+        if (alignOrientationEnabled) {
+            player.say("向き合わせON");
         } else {
-            targetDirection = -180; // 南
-        }
-
-        // エージェントが目標の向きになるまで左回転
-        while (attempts < 4) {
-            const agentDirection = agent.getOrientation();
-            if (agentDirection == targetDirection) {
-                return;
-            }
-            agent.turn(LEFT_TURN);
-            attempts += 1;
+            player.say("向き合わせOFF");
         }
     }
 
     /**
      * エージェントをプレイヤーの位置にテレポートさせる
-     * 向きは変更されません
+     * 向き合わせ機能がONの場合、プレイヤーと同じ方向を向かせます
+     * プレイヤーの向き（-180～180度）を4方向（北、東、西、南）に変換し、
+     * エージェントが同じ方向を向くまで左に回転させます
      */
     //% block="エージェントをプレイヤーのところによぶ"
-    //% weight=89
-    export function AgentToPlayer(): void {
+    //% weight=90
+    export function callAgentToPlayer(): void {
         agent.teleportToPlayer();
+
+        if (alignOrientationEnabled) {
+            let attempts = 0;
+            const playerDirection = player.getOrientation();
+            let targetDirection: number;
+
+            // プレイヤーの向きを4方向に変換
+            if (playerDirection >= -45 && playerDirection < 45) {
+                targetDirection = 0; // 北
+            } else if (playerDirection >= 45 && playerDirection < 135) {
+                targetDirection = 90; // 東
+            } else if (playerDirection >= -135 && playerDirection < -45) {
+                targetDirection = -90; // 西
+            } else {
+                targetDirection = -180; // 南
+            }
+
+            // エージェントが目標の向きになるまで左回転
+            while (attempts < 4) {
+                const agentDirection = agent.getOrientation();
+                if (agentDirection == targetDirection) {
+                    return;
+                }
+                agent.turn(LEFT_TURN);
+                attempts += 1;
+            }
+        }
     }
 
     /**
@@ -320,6 +313,92 @@ namespace 相対座標 {
         } else {
             player.say(`スタート地点: (${startX}, ${startY}, ${startZ})`);
         }
+    }
+
+    /**
+     * スタート地点からのカメラ依存相対座標を返します（前・右・上）
+     * プレイヤーの向きに応じて、前方・右方・上方の位置を計算します
+     * @param forward 前方向の距離, eg: 0
+     * @param right 右方向の距離, eg: 0
+     * @param up 上方向の距離, eg: 0
+     */
+    //% blockId=customCameraRelativePosition block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up"
+    //% weight=85
+    export function posFromStartLocal(forward: number, right: number, up: number): Position {
+        if (!isStartSet) {
+            player.say("先にスタート地点を設定してください");
+            return world(0, 0, 0);
+        }
+
+        // プレイヤーの向きを取得
+        const orientation = player.getOrientation();
+        let offsetX = 0;
+        let offsetZ = 0;
+
+        // プレイヤーの向きに基づいて前方と右方の座標を計算
+        if (orientation >= -45 && orientation < 45) {
+            // 北向き: X=右, Z=前(負)
+            offsetX = right;
+            offsetZ = -forward;
+        } else if (orientation >= 45 && orientation < 135) {
+            // 東向き: X=前, Z=右
+            offsetX = forward;
+            offsetZ = right;
+        } else if (orientation >= -135 && orientation < -45) {
+            // 西向き: X=前(負), Z=右(負)
+            offsetX = -forward;
+            offsetZ = -right;
+        } else {
+            // 南向き: X=右(負), Z=前
+            offsetX = -right;
+            offsetZ = forward;
+        }
+
+        return world(startX + offsetX, startY + up, startZ + offsetZ);
+    }
+
+    /**
+     * スタート地点からのカメラ依存相対座標にブロックを配置します（前・右・上）
+     * @param forward 前方向の距離, eg: 0
+     * @param right 右方向の距離, eg: 0
+     * @param up 上方向の距離, eg: 0
+     * @param block 配置するブロック
+     */
+    //% block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
+    //% block.shadow=minecraftBlock
+    //% weight=75
+    export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: Block): void {
+        if (!isStartSet) {
+            player.say("先にスタート地点を設定してください");
+            return;
+        }
+
+        const pos = posFromStartLocal(forward, right, up);
+        blocks.place(block, pos);
+    }
+
+    /**
+     * スタート地点からのカメラ依存相対座標の範囲をブロックで埋めます（前・右・上）
+     * @param block 配置するブロック
+     * @param forward1 開始前方向, eg: 0
+     * @param right1 開始右方向, eg: 0
+     * @param up1 開始上方向, eg: 0
+     * @param forward2 終了前方向, eg: 5
+     * @param right2 終了右方向, eg: 5
+     * @param up2 終了上方向, eg: 5
+     */
+    //% block="%block で スタートから まえ:%forward1|みぎ:%right1|うえ:%up1 から まえ:%forward2|みぎ:%right2|うえ:%up2 までうめる"
+    //% block.shadow=minecraftBlock
+    //% weight=65
+    export function fillBlocksFromStartLocal(block: Block, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
+        if (!isStartSet) {
+            player.say("先にスタート地点を設定してください");
+            return;
+        }
+
+        const pos1 = posFromStartLocal(forward1, right1, up1);
+        const pos2 = posFromStartLocal(forward2, right2, up2);
+        blocks.fill(block, pos1, pos2, FillOperation.Replace);
     }
 }
 
@@ -1261,7 +1340,7 @@ namespace 遊び用 {
      */
     //% block="エンドポータルをつくる"
     export function EG(): void {
-        エージェント操作.alignAgentToPlayer()
+        エージェント操作.callAgentToPlayer()
         agent.setItem(END_PORTAL, 1, 1)
         agent.setSlot(1)
         agent.move(FORWARD, 5)
@@ -1274,7 +1353,7 @@ namespace 遊び用 {
             agent.place(FORWARD)
             agent.turn(RIGHT_TURN)
         }
-        エージェント操作.alignAgentToPlayer()
+        エージェント操作.callAgentToPlayer()
         agent.move(FORWARD, 2)
         agent.turn(LEFT_TURN)
         agent.turn(LEFT_TURN)
