@@ -83,4 +83,11 @@ player.onItemInteracted(RECOVERY_COMPASS, function () {
         ))
     }
 })
-
+エージェント操作.onChatCommand("1", function () {
+    遊び用.buildCustomHouse(
+        PLANKS_OAK,
+        GLOWSTONE,
+        LOG_OAK,
+        RED_CARPET
+    )
+})

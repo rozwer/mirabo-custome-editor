@@ -52,7 +52,7 @@ enum OnOff {
     Off
 }
 
-//% weight=1000000001001 color=#dc143c icon="" block="エージェント"
+//% weight=1000000001001 color=#dc143c icon="\uf1b4" block="エージェント"
 namespace エージェント操作 {
     /**
      * エージェントを左または右に向かせる
@@ -393,7 +393,7 @@ namespace ブロック {
     }
 }
 
-//% weight=1000000000900 color=#008000 icon="" block="モブ"
+//% weight=1000000000900 color=#008000 icon="" block="モブ"
 namespace モブ {
 
     /**
