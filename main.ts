@@ -33,19 +33,19 @@ player.onItemInteracted(TOTEM, function () {
 })
 player.onItemInteracted(IRON_SHOVEL, function () {
     blocks.fill(
-    AIR,
-    posCamera(2, 0, 2),
-    posCamera(-2, -4, -2),
-    FillOperation.Replace
+        AIR,
+        posCamera(2, 0, 2),
+        posCamera(-2, -4, -2),
+        FillOperation.Replace
     )
 })
 player.onArrowShot(function () {
     loops.pause(1000)
     player.execute(
-    "/tp @p @e[type=arrow,c=1]"
+        "/tp @p @e[type=arrow,c=1]"
     )
     player.execute(
-    "/kill @e[type=arrow]"
+        "/kill @e[type=arrow]"
     )
 })
 player.onItemInteracted(RABBIT_FOOT, function () {
@@ -70,19 +70,17 @@ player.onItemInteracted(FEATHER, function () {
 player.onItemInteracted(RECOVERY_COMPASS, function () {
     for (let index = 0; index < 4; index++) {
         mobs.spawn(mobs.monster(WARDEN), randpos(
-        pos(3, 3, 3),
-        pos(-3, 0, -3)
+            pos(3, 3, 3),
+            pos(-3, 0, -3)
         ))
         mobs.spawn(mobs.monster(WARDEN), randpos(
-        pos(3, 3, 3),
-        pos(-3, 0, -3)
+            pos(3, 3, 3),
+            pos(-3, 0, -3)
         ))
         mobs.spawn(mobs.monster(WARDEN), randpos(
-        pos(3, 3, 3),
-        pos(-3, 0, -3)
+            pos(3, 3, 3),
+            pos(-3, 0, -3)
         ))
     }
 })
-エージェント操作.onChatCommand("1", function () {
-    遊び用.home1()
-})
+

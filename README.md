@@ -13,8 +13,9 @@ mirabo-custome-editor/
 ├── MAKECODE_KNOWHOW.md     # MakeCode開発ノウハウ（完全ガイド）
 ├── references/             # 型定義ファイル
 │   └── core/              # Minecraft MakeCode コア定義
-└── scripts/               # 自動化スクリプト
+├── scripts/               # 自動化スクリプト
     ├── update-tsconfig.js # tsconfig自動更新スクリプト
+    ├── update-mkcd.js     # .mkcdファイル更新スクリプト
     └── README.md          # スクリプトの使い方
 ```
 
@@ -130,6 +131,22 @@ Minecraft MakeCodeのコア型定義ファイルです。以下が含まれま�
 ### update-tsconfig
 
 プロジェクト内の全TypeScriptファイルをスキャンし、`tsconfig.json` の `include` に含まれていないファイルを検出・追加します。
+
+### update-mkcd
+
+MakeCode プロジェクトファイル (`.mkcd`) に `custome.ts` を追加・更新します。
+
+```bash
+# .mkcdファイルにcustome.tsを追加
+node scripts/update-mkcd.js minecraft-カスタムエディタブラッシュアップ用.mkcd
+```
+
+このスクリプトは以下を自動的に行います：
+- `.mkcd` ファイルを展開
+- `custome.ts` の内容を追加
+- `pxt.json` の `files` リストを更新
+- 元のファイルをバックアップ（`.backup` 拡張子）
+- LZMA形式で再圧縮して元のファイルを置き換え
 
 詳細は [scripts/README.md](scripts/README.md) を参照してください。
 
