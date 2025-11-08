@@ -803,20 +803,43 @@ export function turnAgent(direction: TurnDirection): void {
 }
 ```
 
-### 11.3 複数パラメーター
+### 11.3 複数パラメーター（ブロック選択）
+
+**ブロック選択の正しい実装方法:**
 
 ```typescript
 /**
- * @param pos スロット番号, eg: 1
- * @param num 個数, eg: 64
+ * エージェントのカバンに指定したブロックを入れる
+ * @param pos スロット番号（1-27）, eg: 1
+ * @param num ブロックの個数, eg: 64
  * @param block ブロックの種類
  */
-//% block="スロット %pos に %block を %num 個入れる"
+//% block="えーじぇんとのかばんの %pos ばんめに %num この %block をいれる"
 //% block.shadow=minecraftBlock
-export function setItem(pos: number, num: number, block: Block): void {
+export function giveToAgent(pos: number, num: number, block: Block): void {
     agent.setItem(block, num, pos);
 }
 ```
+
+**方向選択の正しい実装方法（SixDirection）:**
+
+```typescript
+/**
+ * エージェントに指定した方向にブロックを置かせる
+ * @param dir 設置する方向
+ */
+//% block="えーじぇんとに %dir にぶろっくをおかせる"
+//% dir.shadow=minecraftAgentSixDirection
+export function placeBlock(dir: SixDirection): void {
+    agent.place(dir);
+}
+```
+
+**重要ポイント:**
+- ブロック選択には`Block`型を使用し、`block.shadow=minecraftBlock`を指定
+- 方向選択には`SixDirection`型を使用し、`dir.shadow=minecraftAgentSixDirection`を指定
+- カスタムEnumは避け、core側の標準型を使用する
+- ブロックテキストは平仮名で統一（例: `えーじぇんと`）
 
 ### 11.4 オプション引数
 
@@ -854,7 +877,61 @@ namespace データ保存 {
 }
 ```
 
-### 11.6 ヘルパー関数（非公開）
+### 11.6 トグル機能の実装
+
+**機能のON/OFFをトグルで切り替える:**
+
+```typescript
+namespace エージェント操作 {
+    // 地面変更機能のON/OFFフラグ（デフォルトON）
+    let floorChangeEnabled: boolean = true;
+
+    /**
+     * 地面変更機能のON/OFFを切り替える（トグル）
+     */
+    //% block="ゆかをかえるきのうをきりかえる"
+    //% weight=95
+    export function toggleFloorChange(): void {
+        floorChangeEnabled = !floorChangeEnabled;
+        if (floorChangeEnabled) {
+            player.say("床変更機能ON");
+        } else {
+            player.say("床変更機能OFF");
+        }
+    }
+
+    /**
+     * エージェントを指定したステップ数前進させる
+     * 地面変更機能がONの場合、移動後の位置の足元にガラスブロックを配置
+     */
+    //% block="エージェントを %steps すすめる"
+    export function moveAgent(steps: number): void {
+        for (let i = 0; i < steps; i++) {
+            agent.move(FORWARD, 1);
+
+            // 地面変更機能がONの場合のみブロックを配置
+            if (floorChangeEnabled) {
+                let position = agent.getPosition();
+                blocks.place(GLASS, world(
+                    position.getValue(Axis.X),
+                    position.getValue(Axis.Y) - 1,
+                    position.getValue(Axis.Z)
+                ));
+            }
+
+            loops.pause(50);
+        }
+    }
+}
+```
+
+**ポイント:**
+- 名前空間内のグローバル変数でフラグを管理
+- トグル関数で`!`演算子を使って反転
+- `player.say()`で状態をユーザーに通知
+- デフォルト値は使いやすい方に設定（多くの場合ON）
+
+### 11.7 ヘルパー関数（非公開）
 
 ```typescript
 namespace ビルダー {
@@ -872,7 +949,7 @@ namespace ビルダー {
 }
 ```
 
-### 11.7 ループとアニメーション
+### 11.8 ループとアニメーション
 
 ```typescript
 //% block="%steps 歩歩く（アニメーション付き）"
