@@ -257,8 +257,8 @@ namespace ブロック {
     //% inlineInputMode="inline"
     export function posFromStart(x: number, y: number, z: number): Position {
         if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return world(0, 0, 0);
+            // 自動的にプレイヤーの位置でスタート地点を初期化
+            setStartPositionFromPlayer();
         }
         return world(startX + x, startY + y, startZ + z);
     }
@@ -289,8 +289,8 @@ namespace ブロック {
     //% weight=85
     export function posFromStartLocal(forward: number, right: number, up: number): Position {
         if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return world(0, 0, 0);
+            // 自動的にプレイヤーの位置でスタート地点を初期化
+            setStartPositionFromPlayer();
         }
 
         // プレイヤーの向きを取得
@@ -334,8 +334,8 @@ namespace ブロック {
     //% weight=75
     export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: number): void {
         if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return;
+            // 自動的にプレイヤーの位置でスタート地点を初期化
+            setStartPositionFromPlayer();
         }
 
         const pos = posFromStartLocal(forward, right, up);
@@ -359,8 +359,8 @@ namespace ブロック {
     //% weight=65
     export function fillBlocksFromStartLocal(block: number, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
         if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return;
+            // 自動的にプレイヤーの位置でスタート地点を初期化
+            setStartPositionFromPlayer();
         }
 
         const pos1 = posFromStartLocal(forward1, right1, up1);
@@ -1172,6 +1172,117 @@ namespace 遊び用 {
         player.say("ふうせんでみぎクリックしてみよう")
     }
 
+
+    /**
+     * カスタマイズ可能な水族館を建設し、様々な水生生物をスポーンさせる
+     * ガラスの水槽内に海の生物を配置します
+     * @param tankBlock 水槽の素材
+     * @param floorBlock 床の素材
+     * @param creature1 水生生物1の種類
+     * @param count1 水生生物1の数, eg: 5
+     * @param creature2 水生生物2の種類
+     * @param count2 水生生物2の数, eg: 5
+     * @param creature3 水生生物3の種類
+     * @param count3 水生生物3の数, eg: 5
+     * @param creature4 水生生物4の種類
+     * @param count4 水生生物4の数, eg: 5
+     */
+    //% block="すいぞくかんをつくる|すいそう $tankBlock|ゆか $floorBlock|いきもの1 $creature1|かず1 $count1|いきもの2 $creature2|かず2 $count2|いきもの3 $creature3|かず3 $count3|いきもの4 $creature4|かず4 $count4"
+    //% tankBlock.shadow=minecraftBlock tankBlock.defl=Block.Glass
+    //% floorBlock.shadow=minecraftBlock floorBlock.defl=Block.Prismarine
+    //% creature1.shadow=minecraftAnimal creature1.defl=TROPICAL_FISH
+    //% count1.min=0 count1.max=20 count1.defl=5
+    //% creature2.shadow=minecraftAnimal creature2.defl=COD
+    //% count2.min=0 count2.max=20 count2.defl=5
+    //% creature3.shadow=minecraftAnimal creature3.defl=SALMON
+    //% count3.min=0 count3.max=20 count3.defl=5
+    //% creature4.shadow=minecraftAnimal creature4.defl=PUFFERFISH
+    //% count4.min=0 count4.max=20 count4.defl=5
+    //% expandableArgumentMode="enabled"
+    export function buildCustomAquarium(tankBlock?: number, floorBlock?: number, creature1?: number, count1?: number, creature2?: number, count2?: number, creature3?: number, count3?: number, creature4?: number, count4?: number): void {
+        // デフォルト値の設定
+        if (tankBlock === undefined) tankBlock = GLASS;
+        if (floorBlock === undefined) floorBlock = PRISMARINE;
+        if (creature1 === undefined) creature1 = TROPICAL_FISH;
+        if (count1 === undefined) count1 = 5;
+        if (creature2 === undefined) creature2 = COD;
+        if (count2 === undefined) count2 = 5;
+        if (creature3 === undefined) creature3 = SALMON;
+        if (count3 === undefined) count3 = 5;
+        if (creature4 === undefined) creature4 = PUFFERFISH;
+        if (count4 === undefined) count4 = 5;
+
+        // プレイヤーの現在位置を取得
+        let playerPos = player.position();
+        let playerX = playerPos.getValue(Axis.X);
+        let playerY = playerPos.getValue(Axis.Y);
+        let playerZ = playerPos.getValue(Axis.Z);
+
+        // 水槽の外枠（ガラス）
+        blocks.fill(
+            tankBlock,
+            world(playerX - 10, playerY, playerZ + 3),
+            world(playerX + 10, playerY + 8, playerZ + 24),
+            FillOperation.Hollow
+        )
+
+        // 床
+        blocks.fill(
+            floorBlock,
+            world(playerX - 9, playerY, playerZ + 4),
+            world(playerX + 9, playerY, playerZ + 23),
+            FillOperation.Replace
+        )
+
+        // 水槽内部を水で満たす
+        blocks.fill(
+            WATER,
+            world(playerX - 9, playerY + 1, playerZ + 4),
+            world(playerX + 9, playerY + 7, playerZ + 23),
+            FillOperation.Replace
+        )
+
+        // 水生生物1のスポーン
+        for (let i = 0; i < count1; i++) {
+            mobs.spawn(creature1, randpos(
+                world(playerX - 8, playerY + 2, playerZ + 5),
+                world(playerX + 8, playerY + 6, playerZ + 22)
+            ))
+        }
+
+        // 水生生物2のスポーン
+        for (let i = 0; i < count2; i++) {
+            mobs.spawn(creature2, randpos(
+                world(playerX - 8, playerY + 2, playerZ + 5),
+                world(playerX + 8, playerY + 6, playerZ + 22)
+            ))
+        }
+
+        // 水生生物3のスポーン
+        for (let i = 0; i < count3; i++) {
+            mobs.spawn(creature3, randpos(
+                world(playerX - 8, playerY + 2, playerZ + 5),
+                world(playerX + 8, playerY + 6, playerZ + 22)
+            ))
+        }
+
+        // 水生生物4のスポーン
+        for (let i = 0; i < count4; i++) {
+            mobs.spawn(creature4, randpos(
+                world(playerX - 8, playerY + 2, playerZ + 5),
+                world(playerX + 8, playerY + 6, playerZ + 22)
+            ))
+        }
+
+        // 海藻（昆布）をいくつか配置
+        for (let i = 0; i < 10; i++) {
+            let randomX = playerX + randint(-8, 8);
+            let randomZ = playerZ + randint(5, 22);
+            blocks.place(KELP, world(randomX, playerY + 1, randomZ));
+        }
+
+        player.say("すいぞくかんができました！")
+    }
 
     /**
      * エージェントの前方にスノーゴーレムを生成する
