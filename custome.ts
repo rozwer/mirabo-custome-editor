@@ -1,4 +1,3 @@
-/// <reference path="./references/core/all.d.ts" />
 
 /**
  * エージェントの向き（左または右）
@@ -38,6 +37,16 @@ enum test2 {
     c,
 }
 
+/**
+ * ON/OFF選択用Enum
+ */
+enum OnOff {
+    //% block="ON"
+    On,
+    //% block="OFF"
+    Off
+}
+
 
 
 //% weight=1000000001000 color=#ffa500 icon="" block="ブロック設置"
@@ -46,7 +55,7 @@ namespace ブロック設置 {
      * エージェントのカバンの指定したスロットを手に持つ
      * @param pos スロット番号（1-27）, eg: 1
      */
-    //% block="えーじぇんとのかばんの %pos ばんめをてにもつ"
+    //% block="エージェントのカバンの %pos ばんめを手にもつ"
     export function getAgentItem(pos: number): void {
         agent.setSlot(pos);
     }
@@ -55,7 +64,7 @@ namespace ブロック設置 {
      * エージェントに指定した方向にブロックを置かせる
      * @param dir 設置する方向
      */
-    //% block="えーじぇんとに %dir にぶろっくをおかせる"
+    //% block="エージェントに %dir にブロックをおかせる"
     //% dir.shadow=minecraftAgentSixDirection
     export function placeBlock(dir: SixDirection): void {
         agent.place(dir);
@@ -67,7 +76,9 @@ namespace ブロック設置 {
      * @param num ブロックの個数, eg: 64
      * @param block ブロックの種類
      */
-    //% block="えーじぇんとのかばんの %pos ばんめに %num この %block をいれる"
+    //% block="エージェントのカバンの %pos ばんめに %num この %block をいれる"
+    //% pos.min=1 pos.max=27
+    //% num.min=1 num.max=64
     //% block.shadow=minecraftBlock
     export function giveToAgent1(pos: number, num: number, block: Block): void {
         agent.setItem(block, num, pos);
@@ -96,19 +107,18 @@ namespace エージェント操作 {
      * @param changeFloor 地面を変更するか
      */
     //% block="エージェントを %steps すすめる|ゆかをかえる %changeFloor"
-    //% changeFloor.shadow=toggleOnOff changeFloor.defl=true
     //% weight=100
     //% expandableArgumentMode="enabled"
-    export function moveAgent(steps: number, changeFloor?: boolean): void {
+    export function moveAgent(steps: number, changeFloor?: OnOff): void {
         // デフォルト値の設定
-        if (changeFloor === undefined) changeFloor = true;
+        if (changeFloor === undefined) changeFloor = OnOff.On;
 
         for (let i = 0; i < steps; i++) {
             // 先に移動
             agent.move(FORWARD, 1);
 
             // 地面変更機能がONの場合のみブロックを配置
-            if (changeFloor) {
+            if (changeFloor === OnOff.On) {
                 let position = agent.getPosition();
                 let x = position.getValue(Axis.X);
                 let y = position.getValue(Axis.Y);
@@ -130,16 +140,15 @@ namespace エージェント操作 {
      * @param alignOrientation プレイヤーと向きを合わせるか
      */
     //% block="エージェントをプレイヤーのところによぶ|むきをあわせる %alignOrientation"
-    //% alignOrientation.shadow=toggleOnOff alignOrientation.defl=true
     //% weight=90
     //% expandableArgumentMode="enabled"
-    export function callAgentToPlayer(alignOrientation?: boolean): void {
+    export function callAgentToPlayer(alignOrientation?: OnOff): void {
         // デフォルト値の設定
-        if (alignOrientation === undefined) alignOrientation = true;
+        if (alignOrientation === undefined) alignOrientation = OnOff.On;
 
         agent.teleportToPlayer();
 
-        if (alignOrientation) {
+        if (alignOrientation === OnOff.On) {
             let attempts = 0;
             const playerDirection = player.getOrientation();
             let targetDirection: number;
@@ -193,7 +202,7 @@ namespace 相対座標 {
      * 現在のエージェントの位置をスタート地点として記録します
      * 以降、相対座標ブロックはこの位置を基準(0, 0, 0)として動作します
      */
-    //% block="エージェントのいまのばしょをスタートちてんにする"
+    //% block="エージェントの今の場所をスタート地点にする"
     //% weight=100
     export function setStartPosition(): void {
         let agentPos = agent.getPosition();
@@ -208,7 +217,7 @@ namespace 相対座標 {
      * 現在のプレイヤーの位置をスタート地点として記録します
      * 以降、相対座標ブロックはこの位置を基準(0, 0, 0)として動作します
      */
-    //% block="プレイヤーのいまのばしょをスタートちてんにする"
+    //% block="プレイヤーの今の場所をスタート地点にする"
     //% weight=99
     export function setStartPositionFromPlayer(): void {
         let playerPos = player.position();
@@ -226,7 +235,7 @@ namespace 相対座標 {
      * @param y Y方向の相対座標, eg: 0
      * @param z Z方向の相対座標, eg: 0
      */
-    //% blockId=customRelativePosition block="スタートちてんから X:%x|Y:%y|Z:%z"
+    //% blockId=customRelativePosition block="スタート地点から X:%x|Y:%y|Z:%z"
     //% weight=90
     export function posFromStart(x: number, y: number, z: number): Position {
         if (!isStartSet) {
@@ -243,7 +252,7 @@ namespace 相対座標 {
      * @param z Z方向の相対座標, eg: 0
      * @param block 配置するブロック
      */
-    //% block="スタートちてんから X:%x|Y:%y|Z:%z に %block をおく"
+    //% block="スタート地点から X:%x|Y:%y|Z:%z に %block をおく"
     //% block.shadow=minecraftBlock
     //% weight=80
     export function placeBlockFromStart(x: number, y: number, z: number, block: Block): void {
@@ -283,7 +292,7 @@ namespace 相対座標 {
     /**
      * 設定されているスタート地点の座標を確認します
      */
-    //% block="スタートちてんをかくにんする"
+    //% block="スタート地点を確認する"
     //% weight=60
     export function checkStartPosition(): void {
         if (!isStartSet) {
@@ -300,7 +309,7 @@ namespace 相対座標 {
      * @param right 右方向の距離, eg: 0
      * @param up 上方向の距離, eg: 0
      */
-    //% blockId=posFromStartLocal block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up"
+    //% blockId=posFromStartLocal block="スタート地点から まえ:%forward|みぎ:%right|うえ:%up"
     //% weight=85
     export function posFromStartLocal(forward: number, right: number, up: number): Position {
         if (!isStartSet) {
@@ -342,7 +351,7 @@ namespace 相対座標 {
      * @param up 上方向の距離, eg: 0
      * @param block 配置するブロック
      */
-    //% blockId=placeBlockFromStartLocal block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
+    //% blockId=placeBlockFromStartLocal block="スタート地点から まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
     //% block.shadow=minecraftBlock
     //% weight=75
     export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: Block): void {
@@ -823,7 +832,7 @@ namespace 遊び用 {
      * @param roofBlock 屋根の素材
      * @param carpetBlock カーペットの色（Airを選ぶとカーペットなし）
      */
-    //% block="いえをつくる|かべ %wallBlock|ゆか %floorBlock|やね %roofBlock|かーぺっと %carpetBlock"
+    //% block="いえをつくる|かべ %wallBlock|ゆか %floorBlock|やね %roofBlock|カーペット %carpetBlock"
     //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.PlanksOak
     //% floorBlock.shadow=minecraftBlock floorBlock.defl=Block.Glowstone
     //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.LogOak
@@ -948,17 +957,17 @@ namespace 遊び用 {
      * @param pillarBlock 柱の素材
      * @param withElevator エレベーターを統合するか（左奥に配置）
      */
-    //% block="%max かいだてのまんしょんをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock|えれべーたー %withElevator"
+    //% block="%max かいだてのマンションをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock|エレベーター %withElevator"
     //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.StoneBricks
     //% windowBlock.shadow=minecraftBlock windowBlock.defl=Block.Glass
     //% pillarBlock.shadow=minecraftBlock pillarBlock.defl=Block.ChiseledStoneBricks
-    //% withElevator.shadow=toggleOnOff withElevator.defl=false
     //% expandableArgumentMode="enabled"
-    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block, withElevator?: boolean) {
+    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block, withElevator?: OnOff) {
         // デフォルト値の設定
         if (wallBlock === undefined) wallBlock = STONE_BRICKS;
         if (windowBlock === undefined) windowBlock = GLASS;
         if (pillarBlock === undefined) pillarBlock = CHISELED_STONE_BRICKS;
+        if (withElevator === undefined) withElevator = OnOff.Off;
 
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
@@ -1063,13 +1072,13 @@ namespace 遊び用 {
         blocks.place(IRON_DOOR, world(playerX + 3, playerY + 1, playerZ + 1))
 
         // エレベーター統合（左奥に配置）
-        if (withElevator === true) {
+        if (withElevator === OnOff.On) {
             // エレベーターの位置を計算（正面=扉側から見て左奥）
             // マンションは playerX+3 (前) から playerX+14 (後)、playerZ-5 (左) から playerZ+6 (右)
-            // 左奥の位置調整: もう2つ奥、もう1つ右、もう1つ上
+            // 左奥の位置調整: もう2つ奥、もう1つ上、左に2個
             let elevatorX = playerX + 11 + 2;  // もう2つ奥
             let elevatorY = playerY + 1;  // もう1つ上
-            let elevatorZ = playerZ - 3 + 1;  // もう1つ右
+            let elevatorZ = playerZ - 3 + 1 - 2;  // もう1つ右から左に2個ずらす
 
             // エレベーターの基礎部分
             blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, elevatorY - 1, elevatorZ + 2))
@@ -1139,7 +1148,7 @@ namespace 遊び用 {
      * 指定した階数の水流エレベーターを建設する
      * @param max エレベーターの階数, eg: 3
      */
-    //% block="%max　かいだてのエレベーターをたてる"
+    //% block="%max かいだてのエレベーターをたてる"
     export function Ell(max: number) {
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
