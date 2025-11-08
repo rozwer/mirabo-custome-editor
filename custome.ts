@@ -968,13 +968,15 @@ namespace 遊び用 {
      * @param wallBlock 壁の素材
      * @param windowBlock 窓の素材
      * @param pillarBlock 柱の素材
+     * @param withElevator エレベーターを統合するか（左奥に配置）
      */
-    //% block="%max かいだてのまんしょんをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock"
+    //% block="%max かいだてのまんしょんをたてる|かべ %wallBlock|まど %windowBlock|はしら %pillarBlock|えれべーたー %withElevator"
     //% wallBlock.shadow=minecraftBlock wallBlock.defl=Block.StoneBricks
     //% windowBlock.shadow=minecraftBlock windowBlock.defl=Block.Glass
     //% pillarBlock.shadow=minecraftBlock pillarBlock.defl=Block.ChiseledStoneBricks
+    //% withElevator.shadow=toggleOnOff withElevator.defl=false
     //% expandableArgumentMode="enabled"
-    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block) {
+    export function buildCustomMansion(max: number, wallBlock?: Block, windowBlock?: Block, pillarBlock?: Block, withElevator?: boolean) {
         // デフォルト値の設定
         if (wallBlock === undefined) wallBlock = STONE_BRICKS;
         if (windowBlock === undefined) windowBlock = GLASS;
@@ -1081,6 +1083,77 @@ namespace 遊び用 {
         )
         blocks.place(IRON_DOOR, world(playerX + 3, playerY + 1, playerZ - 0))
         blocks.place(IRON_DOOR, world(playerX + 3, playerY + 1, playerZ + 1))
+
+        // エレベーター統合（左奥に配置）
+        if (withElevator === true) {
+            // エレベーターの位置を計算（正面=扉側から見て左奥）
+            // マンションは playerX+3 (前) から playerX+14 (後)、playerZ-5 (左) から playerZ+6 (右)
+            // 左奥の位置: X方向は後方寄り（+11）、Z方向は左寄り（-3）
+            let elevatorX = playerX + 11;
+            let elevatorZ = playerZ - 3;
+
+            // エレベーターの基礎部分
+            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, playerY - 1, elevatorZ + 2))
+            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, playerY - 1, elevatorZ + 0))
+
+            // 下降エレベーターシャフト（マグマブロック）
+            blocks.fill(
+                CHISELED_STONE_BRICKS,
+                world(elevatorX + 1, playerY, elevatorZ + 3),
+                world(elevatorX - 1, playerY + (max - 0) * 5 - 1, elevatorZ + 1),
+                FillOperation.Hollow
+            )
+            blocks.fill(
+                AIR,
+                world(elevatorX - 0, playerY, elevatorZ + 2),
+                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 2),
+                FillOperation.Replace
+            )
+            blocks.fill(
+                WATER,
+                world(elevatorX - 0, playerY, elevatorZ + 2),
+                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 2),
+                FillOperation.Replace
+            )
+            blocks.place(MAGMA_BLOCK, world(elevatorX - 0, playerY - 1, elevatorZ + 2))
+            blocks.fill(
+                AIR,
+                world(elevatorX - 1, playerY, elevatorZ + 2),
+                world(elevatorX - 1, playerY + 1, elevatorZ + 2),
+                FillOperation.Replace
+            )
+            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY, elevatorZ + 2))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY + 1, elevatorZ + 2))
+
+            // 上昇エレベーターシャフト（ソウルサンド）
+            blocks.fill(
+                CHISELED_STONE_BRICKS,
+                world(elevatorX + 1, playerY, elevatorZ - 1),
+                world(elevatorX - 1, playerY + (max - 0) * 5 - 1, elevatorZ + 1),
+                FillOperation.Hollow
+            )
+            blocks.fill(
+                AIR,
+                world(elevatorX - 0, playerY, elevatorZ + 0),
+                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 0),
+                FillOperation.Replace
+            )
+            blocks.fill(
+                WATER,
+                world(elevatorX - 0, playerY, elevatorZ + 0),
+                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 0),
+                FillOperation.Replace
+            )
+            blocks.fill(
+                AIR,
+                world(elevatorX - 1, playerY, elevatorZ + 0),
+                world(elevatorX - 1, playerY + 1, elevatorZ + 0),
+                FillOperation.Replace
+            )
+            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY, elevatorZ + 0))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY + 1, elevatorZ + 0))
+            blocks.place(SOUL_SAND, world(elevatorX - 0, playerY - 1, elevatorZ + 0))
+        }
     }
 
     /**
