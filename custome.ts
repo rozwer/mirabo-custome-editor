@@ -76,9 +76,6 @@ namespace ブロック設置 {
 
 //% weight=1000000001001 color=#dc143c icon="" block="エージェント操作"
 namespace エージェント操作 {
-    // 地面変更機能のON/OFFフラグ（デフォルトON）
-    let floorChangeEnabled: boolean = true;
-
     /**
      * エージェントを左または右に向かせる
      * @param direction 向かせる方向（左または右）
@@ -93,33 +90,25 @@ namespace エージェント操作 {
     }
 
     /**
-     * 地面変更機能のON/OFFを切り替える（トグル）
-     */
-    //% block="ゆかをかえるきのうをきりかえる"
-    //% weight=95
-    export function toggleFloorChange(): void {
-        floorChangeEnabled = !floorChangeEnabled;
-        if (floorChangeEnabled) {
-            player.say("床変更機能ON");
-        } else {
-            player.say("床変更機能OFF");
-        }
-    }
-
-    /**
      * エージェントを指定したステップ数前進させる
      * 地面変更機能がONの場合、移動後の位置の足元（Y-1）にガラスブロックを配置します
      * @param steps 移動するステップ数, eg: 5
+     * @param changeFloor 地面を変更するか
      */
-    //% block="エージェントを %steps すすめる"
+    //% block="エージェントを %steps すすめる|ゆかをかえる %changeFloor"
+    //% changeFloor.shadow=toggleOnOff changeFloor.defl=true
     //% weight=100
-    export function moveAgent(steps: number): void {
+    //% expandableArgumentMode="enabled"
+    export function moveAgent(steps: number, changeFloor?: boolean): void {
+        // デフォルト値の設定
+        if (changeFloor === undefined) changeFloor = true;
+
         for (let i = 0; i < steps; i++) {
             // 先に移動
             agent.move(FORWARD, 1);
 
             // 地面変更機能がONの場合のみブロックを配置
-            if (floorChangeEnabled) {
+            if (changeFloor) {
                 let position = agent.getPosition();
                 let x = position.getValue(Axis.X);
                 let y = position.getValue(Axis.Y);
@@ -133,35 +122,24 @@ namespace エージェント操作 {
         }
     }
 
-    // 向き合わせ機能のON/OFFフラグ（デフォルトON）
-    let alignOrientationEnabled: boolean = true;
-
-    /**
-     * エージェント呼び出し時の向き合わせ機能のON/OFFを切り替える（トグル）
-     */
-    //% block="エージェントをよぶときにむきをあわせるをきりかえる"
-    //% weight=91
-    export function toggleAlignOrientation(): void {
-        alignOrientationEnabled = !alignOrientationEnabled;
-        if (alignOrientationEnabled) {
-            player.say("向き合わせON");
-        } else {
-            player.say("向き合わせOFF");
-        }
-    }
-
     /**
      * エージェントをプレイヤーの位置にテレポートさせる
      * 向き合わせ機能がONの場合、プレイヤーと同じ方向を向かせます
      * プレイヤーの向き（-180～180度）を4方向（北、東、西、南）に変換し、
      * エージェントが同じ方向を向くまで左に回転させます
+     * @param alignOrientation プレイヤーと向きを合わせるか
      */
-    //% block="エージェントをプレイヤーのところによぶ"
+    //% block="エージェントをプレイヤーのところによぶ|むきをあわせる %alignOrientation"
+    //% alignOrientation.shadow=toggleOnOff alignOrientation.defl=true
     //% weight=90
-    export function callAgentToPlayer(): void {
+    //% expandableArgumentMode="enabled"
+    export function callAgentToPlayer(alignOrientation?: boolean): void {
+        // デフォルト値の設定
+        if (alignOrientation === undefined) alignOrientation = true;
+
         agent.teleportToPlayer();
 
-        if (alignOrientationEnabled) {
+        if (alignOrientation) {
             let attempts = 0;
             const playerDirection = player.getOrientation();
             let targetDirection: number;
@@ -322,7 +300,7 @@ namespace 相対座標 {
      * @param right 右方向の距離, eg: 0
      * @param up 上方向の距離, eg: 0
      */
-    //% blockId=customCameraRelativePosition block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up"
+    //% blockId=posFromStartLocal block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up"
     //% weight=85
     export function posFromStartLocal(forward: number, right: number, up: number): Position {
         if (!isStartSet) {
@@ -364,7 +342,7 @@ namespace 相対座標 {
      * @param up 上方向の距離, eg: 0
      * @param block 配置するブロック
      */
-    //% block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
+    //% blockId=placeBlockFromStartLocal block="スタートちてんから まえ:%forward|みぎ:%right|うえ:%up に %block をおく"
     //% block.shadow=minecraftBlock
     //% weight=75
     export function placeBlockFromStartLocal(forward: number, right: number, up: number, block: Block): void {
@@ -387,7 +365,7 @@ namespace 相対座標 {
      * @param right2 終了右方向, eg: 5
      * @param up2 終了上方向, eg: 5
      */
-    //% block="%block で スタートから まえ:%forward1|みぎ:%right1|うえ:%up1 から まえ:%forward2|みぎ:%right2|うえ:%up2 までうめる"
+    //% blockId=fillBlocksFromStartLocal block="%block で スタートから まえ:%forward1|みぎ:%right1|うえ:%up1 から まえ:%forward2|みぎ:%right2|うえ:%up2 までうめる"
     //% block.shadow=minecraftBlock
     //% weight=65
     export function fillBlocksFromStartLocal(block: Block, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
@@ -1088,71 +1066,72 @@ namespace 遊び用 {
         if (withElevator === true) {
             // エレベーターの位置を計算（正面=扉側から見て左奥）
             // マンションは playerX+3 (前) から playerX+14 (後)、playerZ-5 (左) から playerZ+6 (右)
-            // 左奥の位置: X方向は後方寄り（+11）、Z方向は左寄り（-3）
-            let elevatorX = playerX + 11;
-            let elevatorZ = playerZ - 3;
+            // 左奥の位置調整: もう2つ奥、もう1つ右、もう1つ上
+            let elevatorX = playerX + 11 + 2;  // もう2つ奥
+            let elevatorY = playerY + 1;  // もう1つ上
+            let elevatorZ = playerZ - 3 + 1;  // もう1つ右
 
             // エレベーターの基礎部分
-            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, playerY - 1, elevatorZ + 2))
-            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, playerY - 1, elevatorZ + 0))
+            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, elevatorY - 1, elevatorZ + 2))
+            blocks.place(CHISELED_STONE_BRICK_MONSTER_EGG, world(elevatorX - 1, elevatorY - 1, elevatorZ + 0))
 
             // 下降エレベーターシャフト（マグマブロック）
             blocks.fill(
                 CHISELED_STONE_BRICKS,
-                world(elevatorX + 1, playerY, elevatorZ + 3),
-                world(elevatorX - 1, playerY + (max - 0) * 5 - 1, elevatorZ + 1),
+                world(elevatorX + 1, elevatorY, elevatorZ + 3),
+                world(elevatorX - 1, elevatorY + (max - 0) * 5 - 1, elevatorZ + 1),
                 FillOperation.Hollow
             )
             blocks.fill(
                 AIR,
-                world(elevatorX - 0, playerY, elevatorZ + 2),
-                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 2),
+                world(elevatorX - 0, elevatorY, elevatorZ + 2),
+                world(elevatorX - 0, elevatorY + (max - 0) * 5 - 1, elevatorZ + 2),
                 FillOperation.Replace
             )
             blocks.fill(
                 WATER,
-                world(elevatorX - 0, playerY, elevatorZ + 2),
-                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 2),
+                world(elevatorX - 0, elevatorY, elevatorZ + 2),
+                world(elevatorX - 0, elevatorY + (max - 0) * 5 - 1, elevatorZ + 2),
                 FillOperation.Replace
             )
-            blocks.place(MAGMA_BLOCK, world(elevatorX - 0, playerY - 1, elevatorZ + 2))
+            blocks.place(MAGMA_BLOCK, world(elevatorX - 0, elevatorY - 1, elevatorZ + 2))
             blocks.fill(
                 AIR,
-                world(elevatorX - 1, playerY, elevatorZ + 2),
-                world(elevatorX - 1, playerY + 1, elevatorZ + 2),
+                world(elevatorX - 1, elevatorY, elevatorZ + 2),
+                world(elevatorX - 1, elevatorY + 1, elevatorZ + 2),
                 FillOperation.Replace
             )
-            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY, elevatorZ + 2))
-            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY + 1, elevatorZ + 2))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, elevatorY, elevatorZ + 2))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, elevatorY + 1, elevatorZ + 2))
 
             // 上昇エレベーターシャフト（ソウルサンド）
             blocks.fill(
                 CHISELED_STONE_BRICKS,
-                world(elevatorX + 1, playerY, elevatorZ - 1),
-                world(elevatorX - 1, playerY + (max - 0) * 5 - 1, elevatorZ + 1),
+                world(elevatorX + 1, elevatorY, elevatorZ - 1),
+                world(elevatorX - 1, elevatorY + (max - 0) * 5 - 1, elevatorZ + 1),
                 FillOperation.Hollow
             )
             blocks.fill(
                 AIR,
-                world(elevatorX - 0, playerY, elevatorZ + 0),
-                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 0),
+                world(elevatorX - 0, elevatorY, elevatorZ + 0),
+                world(elevatorX - 0, elevatorY + (max - 0) * 5 - 1, elevatorZ + 0),
                 FillOperation.Replace
             )
             blocks.fill(
                 WATER,
-                world(elevatorX - 0, playerY, elevatorZ + 0),
-                world(elevatorX - 0, playerY + (max - 0) * 5 - 1, elevatorZ + 0),
+                world(elevatorX - 0, elevatorY, elevatorZ + 0),
+                world(elevatorX - 0, elevatorY + (max - 0) * 5 - 1, elevatorZ + 0),
                 FillOperation.Replace
             )
             blocks.fill(
                 AIR,
-                world(elevatorX - 1, playerY, elevatorZ + 0),
-                world(elevatorX - 1, playerY + 1, elevatorZ + 0),
+                world(elevatorX - 1, elevatorY, elevatorZ + 0),
+                world(elevatorX - 1, elevatorY + 1, elevatorZ + 0),
                 FillOperation.Replace
             )
-            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY, elevatorZ + 0))
-            blocks.place(OAK_SIGN, world(elevatorX - 1, playerY + 1, elevatorZ + 0))
-            blocks.place(SOUL_SAND, world(elevatorX - 0, playerY - 1, elevatorZ + 0))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, elevatorY, elevatorZ + 0))
+            blocks.place(OAK_SIGN, world(elevatorX - 1, elevatorY + 1, elevatorZ + 0))
+            blocks.place(SOUL_SAND, world(elevatorX - 0, elevatorY - 1, elevatorZ + 0))
         }
     }
 
