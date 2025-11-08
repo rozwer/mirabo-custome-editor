@@ -10,19 +10,24 @@ enum Turndirection {
 }
 
 /**
- * 課題選択用Enum（M1シリーズ）
+ * 課題選択用Enum（TRシリーズ）
  */
 enum test {
-    //% block="M1-3"
+    //旧"M1-3"
+    //% block="TR-2"
     a,
-    //% block="M1-4"
+
+    //旧"M1-4"
+    //% block="TR-3"
     b,
-    //% block="M1-5"
+
+    //旧"M1-5"
+    //% block="TR-4"
     c,
-    //% block="M1-6"
+
+    //旧"M1-7"
+    //% block="TR-5"
     d,
-    //% block="M1-7"
-    e,
 }
 
 /**
@@ -49,7 +54,7 @@ enum OnOff {
 
 
 
-//% weight=1000000001000 color=#ffa500 icon="" block="ブロック設置"
+//% weight=1000000001000 color=#ffa500 icon="\uf1b3" block="ブロック設置"
 namespace ブロック設置 {
     /**
      * エージェントのカバンの指定したスロットを手に持つ
@@ -89,7 +94,7 @@ namespace ブロック設置 {
     }
 }
 
-//% weight=1000000001001 color=#dc143c icon="" block="エージェント操作"
+//% weight=1000000001001 color=#dc143c icon="" block="エージェント"
 namespace エージェント操作 {
     /**
      * エージェントを左または右に向かせる
@@ -110,7 +115,7 @@ namespace エージェント操作 {
      * @param steps 移動するステップ数, eg: 5
      * @param changeFloor 地面を変更するか
      */
-    //% block="エージェントを %steps すすめる|ゆかをかえる %changeFloor"
+    //% block="エージェントを まえに %steps あるかせる|ゆかをかえる %changeFloor"
     //% weight=100
     //% expandableArgumentMode="enabled"
     export function moveAgent(steps: number, changeFloor?: OnOff): void {
@@ -127,6 +132,14 @@ namespace エージェント操作 {
                 let x = position.getValue(Axis.X);
                 let y = position.getValue(Axis.Y);
                 let z = position.getValue(Axis.Z);
+
+                // マグマブロック判定
+                if (agent.inspect(AgentInspection.Block, DOWN) == MAGMA_BLOCK) {
+                    let words: string[] = ["おしい!", "あとすこし!", "もうすこし!", "がんばって!"]
+                    let s = 0
+                    s = randint(0, words.length - 1)
+                    gameplay.title(mobs.target(LOCAL_PLAYER), words[s], "")
+                }
 
                 // 足元にガラスブロックを配置
                 blocks.place(GLASS, world(x, y - 1, z));
@@ -194,7 +207,7 @@ namespace エージェント操作 {
     }
 }
 
-//% weight=1000000000999 color=#32cd32 icon="" block="ブロック"
+//% weight=1000000000999 color=#32cd32 icon="\uf279" block="ブロック"
 namespace ブロック {
     // スタート地点の座標を保存
     let startX: number = 0;
@@ -250,53 +263,6 @@ namespace ブロック {
         return world(startX + x, startY + y, startZ + z);
     }
 
-    /**
-     * スタート地点からの相対座標にブロックを配置します
-     * @param x X方向の相対座標, eg: 0
-     * @param y Y方向の相対座標, eg: 0
-     * @param z Z方向の相対座標, eg: 0
-     * @param block 配置するブロック
-     */
-    //% block="スタートちてんから X:$x|Y:$y|Z:$z に $block をおく"
-    //% block.shadow=minecraftBlock
-    //% block.defl=Block.Stone
-    //% inlineInputMode="inline"
-    //% weight=80
-    export function placeBlockFromStart(x: number, y: number, z: number, block: number): void {
-        if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return;
-        }
-        blocks.place(block, world(startX + x, startY + y, startZ + z));
-    }
-
-    /**
-     * スタート地点からの相対座標の範囲をブロックで埋めます
-     * @param block 配置するブロック
-     * @param x1 開始X座標, eg: 0
-     * @param y1 開始Y座標, eg: 0
-     * @param z1 開始Z座標, eg: 0
-     * @param x2 終了X座標, eg: 5
-     * @param y2 終了Y座標, eg: 5
-     * @param z2 終了Z座標, eg: 5
-     */
-    //% block="$block で スタートから X:$x1|Y:$y1|Z:$z1 から X:$x2|Y:$y2|Z:$z2 までうめる"
-    //% block.shadow=minecraftBlock
-    //% block.defl=Block.Stone
-    //% inlineInputMode="inline"
-    //% weight=70
-    export function fillBlocksFromStart(block: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): void {
-        if (!isStartSet) {
-            player.say("先にスタート地点を設定してください");
-            return;
-        }
-        blocks.fill(
-            block,
-            world(startX + x1, startY + y1, startZ + z1),
-            world(startX + x2, startY + y2, startZ + z2),
-            FillOperation.Replace
-        );
-    }
 
     /**
      * 設定されているスタート地点の座標を確認します
@@ -334,21 +300,21 @@ namespace ブロック {
 
         // プレイヤーの向きに基づいて前方と右方の座標を計算
         if (orientation >= -45 && orientation < 45) {
-            // 北向き: X=右, Z=前(負)
-            offsetX = right;
-            offsetZ = -forward;
-        } else if (orientation >= 45 && orientation < 135) {
-            // 東向き: X=前, Z=右
-            offsetX = forward;
-            offsetZ = right;
-        } else if (orientation >= -135 && orientation < -45) {
-            // 西向き: X=前(負), Z=右(負)
-            offsetX = -forward;
-            offsetZ = -right;
-        } else {
-            // 南向き: X=右(負), Z=前
+            // 北向き(Z負方向を向いている): 前=Z増、右=X減
             offsetX = -right;
             offsetZ = forward;
+        } else if (orientation >= 45 && orientation < 135) {
+            // 東向き(X正方向を向いている): 前=X減、右=Z減
+            offsetX = -forward;
+            offsetZ = -right;
+        } else if (orientation >= -135 && orientation < -45) {
+            // 西向き(X負方向を向いている): 前=X増、右=Z増
+            offsetX = forward;
+            offsetZ = right;
+        } else {
+            // 南向き(Z正方向を向いている): 前=Z減、右=X増
+            offsetX = right;
+            offsetZ = -forward;
         }
 
         return world(startX + offsetX, startY + up, startZ + offsetZ);
@@ -403,17 +369,8 @@ namespace ブロック {
     }
 }
 
-//% weight=1000000000000 color=#00bfff icon="" block="課題カテゴリ"
+//% weight=1000000000000 color=#00bfff icon="" block="ミッション"
 namespace 先生用 {
-    /**
-     * エージェントの向きを考慮して相対座標をワールド座標に変換する
-     * @param baseX 基準点のX座標
-     * @param baseY 基準点のY座標
-     * @param baseZ 基準点のZ座標
-     * @param offsetX X方向のオフセット
-     * @param offsetY Y方向のオフセット
-     * @param orientation エージェントの向き（-180～180度）
-     */
     export function relativeToWorld(baseX: number, baseY: number, baseZ: number, offsetX: number, offsetY: number, orientation: number): Position {
         let worldX = baseX;
         let worldY = baseY - 1;
@@ -435,10 +392,6 @@ namespace 先生用 {
         return world(worldX, worldY, worldZ);
     }
 
-    /**
-     * エージェントの位置と向きに基づいて、前方にダイヤモンドブロックの床を配置する
-     * エージェントの向きに応じて配置範囲が自動調整されます
-     */
     export function onChatCommand2(): void {
         let agentPos2 = agent.getPosition();
         let agentX2 = agentPos2.getValue(Axis.X);
@@ -471,219 +424,13 @@ namespace 先生用 {
         }
 
         blocks.fill(
-            DIAMOND_BLOCK,
+            MAGMA_BLOCK,
             world(startX, agentY2 - 1, startZ),
             world(endX, agentY2 - 1, endZ),
             FillOperation.Replace
         );
     }
 
-    /**
-     * 指定された課題（M1シリーズ）の道を生成する
-     * エージェントの位置を基準に、事前定義されたパスに沿って道を配置します
-     * @param input 課題番号（M1-3～M1-7）
-     */
-    //% block="課題 %input"
-    export function onChatCommand3(input: test): void {
-        switch (input) {
-            case test.a:
-                input = 0;
-                break;
-            case test.b:
-                input = 1;
-                break;
-            case test.c:
-                input = 2;
-                break;
-            case test.d:
-                input = 3;
-                break;
-            case test.e:
-                input = 4;
-                break;
-
-        }
-
-
-        // まずチャットコマンド2を実行
-        onChatCommand2();
-
-        // グローバル配列から指定したインデックスのパスを取得
-        let selectedPathIndex = input
-        let path = paths[selectedPathIndex];
-
-        // エージェントの現在位置と向きを取得
-        let agentPos = agent.getPosition();
-        let agentX = agentPos.getValue(Axis.X);
-        let agentY = agentPos.getValue(Axis.Y);
-        let agentZ = agentPos.getValue(Axis.Z);
-        let orientation = agent.getOrientation();
-
-        // 配列内の連続する点を結ぶ
-        for (let i = 0; i <= path.length - 2; i++) {
-            let start = path[i];
-            let end = path[i + 1];
-
-            // 相対座標を実世界座標に変換 (エージェント基準)
-            let startWorld = relativeToWorld(agentX, agentY, agentZ, start[0], start[1], orientation);
-            let endWorld = relativeToWorld(agentX, agentY, agentZ, end[0], end[1], orientation);
-
-            // 道を配置
-            blocks.fill(
-                GOLD_BLOCK,
-                startWorld,
-                endWorld,
-                FillOperation.Replace
-            );
-
-            // y-1 の位置に別のブロックを配置
-            blocks.fill(
-                BEACON,
-                world(startWorld.getValue(Axis.X), startWorld.getValue(Axis.Y) - 1, startWorld.getValue(Axis.Z)),
-                world(endWorld.getValue(Axis.X), endWorld.getValue(Axis.Y) - 1, endWorld.getValue(Axis.Z)),
-                FillOperation.Replace
-            );
-        }
-    }
-
-    // 迷路データを保存するグローバル変数
-    let savedMazeSize: number = 0;
-    let savedFencePositions: number[][] = [];
-
-    let mazeSize = 0
-    let rand = 0
-
-    /**
-     * ランダムな迷路を生成する
-     * @param 数値 迷路のサイズ（偶数の場合は+1される）
-     */
-    function CreateMaze(数値: number) {
-        // プレイヤーの現在位置を取得
-        let playerPos = player.position();
-        let playerX = playerPos.getValue(Axis.X);
-        let playerY = playerPos.getValue(Axis.Y);
-        let playerZ = playerPos.getValue(Axis.Z);
-
-        if (数値 % 2 == 0) {
-            mazeSize = 数値 + 1
-        } else {
-            mazeSize = 数値
-        }
-
-        // 柵の座標配列をリセット
-        savedFencePositions = [];
-
-        blocks.fill(
-            IRON_BLOCK,
-            world(playerX + 1, playerY - 1, playerZ + 1),
-            world(playerX + mazeSize + 2, playerY, playerZ + mazeSize + 2),
-            FillOperation.Replace
-        )
-        blocks.fill(
-            AIR,
-            world(playerX + 2, playerY, playerZ + 2),
-            world(playerX + mazeSize + 1, playerY, playerZ + mazeSize + 1),
-            FillOperation.Replace
-        )
-        blocks.place(GOLD_BLOCK, world(playerX + 2, playerY - 1, playerZ + 2))
-        blocks.place(SEA_LANTERN, world(playerX + mazeSize + 1, playerY - 1, playerZ + mazeSize + 1))
-        agent.teleport(world(playerX + 2, playerY, playerZ + 2), EAST)
-
-        for (let z = 0; z <= mazeSize - 1; z++) {
-            for (let x = 0; x <= mazeSize - 1; x++) {
-                if (z == mazeSize - 1) {
-                    rand = randint(0, 2)
-                } else {
-                    rand = randint(0, 3)
-                }
-                if (!(z % 2 == 0) && !(x % 2 == 0)) {
-                    blocks.place(BIRCH_FENCE, world(playerX + x + 2, playerY, playerZ + z + 2))
-                    // 中央の柵の相対座標を保存
-                    savedFencePositions.push([x + 2, z + 2]);
-
-                    if (rand == 0) {
-                        blocks.place(BIRCH_FENCE, world(playerX + x + 1, playerY, playerZ + z + 2))
-                        savedFencePositions.push([x + 1, z + 2]);
-                    } else if (rand == 1) {
-                        blocks.place(BIRCH_FENCE, world(playerX + x + 2, playerY, playerZ + z + 3))
-                        savedFencePositions.push([x + 2, z + 3]);
-                    } else if (rand == 2) {
-                        blocks.place(BIRCH_FENCE, world(playerX + x + 3, playerY, playerZ + z + 2))
-                        savedFencePositions.push([x + 3, z + 2]);
-                    } else if (rand == 3) {
-                        blocks.place(BIRCH_FENCE, world(playerX + x + 2, playerY, playerZ + z + 1))
-                        savedFencePositions.push([x + 2, z + 1]);
-                    }
-                }
-            }
-        }
-
-        // 迷路サイズを保存
-        savedMazeSize = 数値;
-    }
-
-    /**
-     * 最後に生成した迷路を再現する
-     * CreateMaze関数で生成された迷路の構造を、現在のプレイヤー位置に再配置します
-     */
-    //% block="さいごにつくった迷路を再現する"
-    export function recreateMaze(): void {
-        if (savedMazeSize == 0 || savedFencePositions.length == 0) {
-            player.say("保存された迷路データがありません");
-            return;
-        }
-
-        // プレイヤーの現在位置を取得
-        let playerPos = player.position();
-        let playerX = playerPos.getValue(Axis.X);
-        let playerY = playerPos.getValue(Axis.Y);
-        let playerZ = playerPos.getValue(Axis.Z);
-
-        let 数値 = savedMazeSize;
-        if (数値 % 2 == 0) {
-            mazeSize = 数値 + 1
-        } else {
-            mazeSize = 数値
-        }
-
-        // 迷路の基本構造を作成
-        blocks.fill(
-            IRON_BLOCK,
-            world(playerX + 1, playerY - 1, playerZ + 1),
-            world(playerX + mazeSize + 2, playerY, playerZ + mazeSize + 2),
-            FillOperation.Replace
-        )
-        blocks.fill(
-            AIR,
-            world(playerX + 2, playerY, playerZ + 2),
-            world(playerX + mazeSize + 1, playerY, playerZ + mazeSize + 1),
-            FillOperation.Replace
-        )
-        blocks.place(GOLD_BLOCK, world(playerX + 2, playerY - 1, playerZ + 2))
-        blocks.place(SEA_LANTERN, world(playerX + mazeSize + 1, playerY - 1, playerZ + mazeSize + 1))
-        agent.teleport(world(playerX + 2, playerY, playerZ + 2), EAST)
-
-        // 保存された柵の座標を使用して柵を配置
-        for (let fencePos of savedFencePositions) {
-            blocks.place(BIRCH_FENCE, world(playerX + fencePos[0], playerY, playerZ + fencePos[1]));
-        }
-
-        player.say("迷路を再現しました");
-    }
-
-    /**
-     * 11x11のランダム迷路を生成する
-     */
-    //% block="ランダム課題"
-    export function onChatCommand5(): void {
-        CreateMaze(11)
-    }
-
-    /**
-     * 指定された発展課題（M2シリーズ）の道を生成する
-     * 2種類のパス（ゴールドブロックとエメラルドブロック）を配置します
-     * @param input 課題番号（M2-2～M2-4）
-     */
     //% block="発展課題 %input"
     export function onChatCommand4(input: test2): void {
         switch (input) {
@@ -730,7 +477,7 @@ namespace 先生用 {
                 FillOperation.Replace
             );
 
-            // y-1 の位置に別のブロックを配置
+            // ビーコンを配置
             blocks.fill(
                 BEACON,
                 world(startWorld.getValue(Axis.X), startWorld.getValue(Axis.Y) - 1, startWorld.getValue(Axis.Z)),
@@ -748,43 +495,123 @@ namespace 先生用 {
 
             // 道を配置
             blocks.fill(
-                EMERALD_BLOCK,
+                REDSTONE_BLOCK,
                 startWorld,
                 endWorld,
                 FillOperation.Replace
             );
+
+            // ビーコンを配置
+            blocks.fill(
+                BEACON,
+                world(startWorld.getValue(Axis.X), startWorld.getValue(Axis.Y) - 1, startWorld.getValue(Axis.Z)),
+                world(endWorld.getValue(Axis.X), endWorld.getValue(Axis.Y) - 1, endWorld.getValue(Axis.Z)),
+                FillOperation.Replace
+            );
         }
 
+        //スタート地点をエメラルドブロックにする
+        blocks.fill(
+            EMERALD_BLOCK,
+            world(agentX, agentY - 1, agentZ),
+            world(agentX, agentY - 1, agentZ),
+            FillOperation.Replace
+        );
+    }
+
+
+    //% block="課題 %input"
+    export function onChatCommand3(input: test): void {
+        switch (input) {
+            case test.a:
+                input = 0;
+                break;
+            case test.b:
+                input = 1;
+                break;
+            case test.c:
+                input = 2;
+                break;
+            case test.d:
+                input = 3;
+                break;
+
+        }
+
+
+        // まずチャットコマンド2を実行
+        onChatCommand2();
+
+        // グローバル配列から指定したインデックスのパスを取得
+        let selectedPathIndex = input
+        let path = paths[selectedPathIndex];
+
+        // エージェントの現在位置と向きを取得
+        let agentPos = agent.getPosition();
+        let agentX = agentPos.getValue(Axis.X);
+        let agentY = agentPos.getValue(Axis.Y);
+        let agentZ = agentPos.getValue(Axis.Z);
+        let orientation = agent.getOrientation();
+
+        let startpositon = world(agentX, agentY, agentZ,);
+
+        // 配列内の連続する点を結ぶ
+        for (let i = 0; i <= path.length - 2; i++) {
+            let start = path[i];
+            let end = path[i + 1];
+
+            // 相対座標を実世界座標に変換 (エージェント基準)
+            let startWorld = relativeToWorld(agentX, agentY, agentZ, start[0], start[1], orientation);
+            let endWorld = relativeToWorld(agentX, agentY, agentZ, end[0], end[1], orientation);
+
+            // 道を配置
+            blocks.fill(
+                GOLD_BLOCK,
+                startWorld,
+                endWorld,
+                FillOperation.Replace
+            );
+
+            // ビーコンを配置
+            blocks.fill(
+                BEACON,
+                world(startWorld.getValue(Axis.X), startWorld.getValue(Axis.Y) - 1, startWorld.getValue(Axis.Z)),
+                world(endWorld.getValue(Axis.X), endWorld.getValue(Axis.Y) - 1, endWorld.getValue(Axis.Z)),
+                FillOperation.Replace
+            );
+        }
+        //スタート地点をエメラルドブロックにする
+        blocks.fill(
+            EMERALD_BLOCK,
+            world(agentX, agentY - 1, agentZ),
+            world(agentX, agentY - 1, agentZ),
+            FillOperation.Replace
+        );
     }
 
 
     // グローバル配列定義
     let paths: number[][][] = [
         [
+            //TR-2
             [0, 0],
-            [0, -5]
+            [0, -4]
         ],
         [
+            //TR-3
             [0, 0],
             [0, -3],
             [2, -3]
         ],
         [
+            //TR-4
             [0, 0],
-            [0, -1],
-            [-2, -1],
-            [-2, -2],
-            [0, -2],
             [0, -3],
-            [-2, -3]
+            [-2, -3],
+            [-2, -1],
         ],
         [
-            [0, 0],
-            [0, -5],
-            [1, -5],
-            [1, -1],
-        ],
-        [
+            //M1-7
             [0, 0],
             [0, -5],
             [1, -5],
@@ -836,7 +663,7 @@ namespace 先生用 {
     ];
 }
 
-//% weight=100000000101 color=#4682b4 icon="" block="遊び用カテゴリ"
+//% weight=100000000101 color=#4682b4 icon="\uf11b" block="遊び用カテゴリ"
 namespace 遊び用 {
     /**
      * カスタマイズ可能な家を建設する
@@ -1232,15 +1059,39 @@ namespace 遊び用 {
      * 完成後、風船アイテムがプレイヤーに与えられます
      * @param fenceBlock 柵の素材
      * @param roofBlock 天井の素材
+     * @param animal1 動物1の種類
+     * @param count1 動物1の数, eg: 5
+     * @param animal2 動物2の種類
+     * @param count2 動物2の数, eg: 5
+     * @param animal3 動物3の種類
+     * @param count3 動物3の数, eg: 5
+     * @param animal4 動物4の種類
+     * @param count4 動物4の数, eg: 5
      */
-    //% block="どうぶつえんをつくる|さく $fenceBlock|てんじょう $roofBlock"
+    //% block="どうぶつえんをつくる|さく $fenceBlock|てんじょう $roofBlock|どうぶつ1 $animal1|かず1 $count1|どうぶつ2 $animal2|かず2 $count2|どうぶつ3 $animal3|かず3 $count3|どうぶつ4 $animal4|かず4 $count4"
     //% fenceBlock.shadow=minecraftBlock fenceBlock.defl=Block.OakFence
     //% roofBlock.shadow=minecraftBlock roofBlock.defl=Block.Glass
+    //% animal1.shadow=minecraftAnimal animal1.defl=CHICKEN
+    //% count1.min=0 count1.max=20 count1.defl=5
+    //% animal2.shadow=minecraftAnimal animal2.defl=PIG
+    //% count2.min=0 count2.max=20 count2.defl=5
+    //% animal3.shadow=minecraftAnimal animal3.defl=COW
+    //% count3.min=0 count3.max=20 count3.defl=5
+    //% animal4.shadow=minecraftAnimal animal4.defl=SHEEP
+    //% count4.min=0 count4.max=20 count4.defl=5
     //% expandableArgumentMode="enabled"
-    export function buildCustomZoo(fenceBlock?: number, roofBlock?: number): void {
+    export function buildCustomZoo(fenceBlock?: number, roofBlock?: number, animal1?: number, count1?: number, animal2?: number, count2?: number, animal3?: number, count3?: number, animal4?: number, count4?: number): void {
         // デフォルト値の設定
         if (fenceBlock === undefined) fenceBlock = OAK_FENCE;
         if (roofBlock === undefined) roofBlock = GLASS;
+        if (animal1 === undefined) animal1 = CHICKEN;
+        if (count1 === undefined) count1 = 5;
+        if (animal2 === undefined) animal2 = PIG;
+        if (count2 === undefined) count2 = 5;
+        if (animal3 === undefined) animal3 = COW;
+        if (count3 === undefined) count3 = 5;
+        if (animal4 === undefined) animal4 = SHEEP;
+        if (count4 === undefined) count4 = 5;
 
         // プレイヤーの現在位置を取得
         let playerPos = player.position();
@@ -1282,36 +1133,39 @@ namespace 遊び用 {
             world(playerX + 9, playerY + 9, playerZ + 23),
             FillOperation.Replace
         )
-        for (let index = 0; index < 5; index++) {
-            mobs.spawn(CHICKEN, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(PIG, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(COW, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(SHEEP, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(POLAR_BEAR, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(CAT, randpos(
-                world(playerX - 9, playerY + 1, playerZ + 4),
-                world(playerX + 9, playerY + 1, playerZ + 23)
-            ))
-            mobs.spawn(PANDA, randpos(
+
+        // 動物1のスポーン
+        for (let i = 0; i < count1; i++) {
+            mobs.spawn(animal1, randpos(
                 world(playerX - 9, playerY + 1, playerZ + 4),
                 world(playerX + 9, playerY + 1, playerZ + 23)
             ))
         }
+
+        // 動物2のスポーン
+        for (let i = 0; i < count2; i++) {
+            mobs.spawn(animal2, randpos(
+                world(playerX - 9, playerY + 1, playerZ + 4),
+                world(playerX + 9, playerY + 1, playerZ + 23)
+            ))
+        }
+
+        // 動物3のスポーン
+        for (let i = 0; i < count3; i++) {
+            mobs.spawn(animal3, randpos(
+                world(playerX - 9, playerY + 1, playerZ + 4),
+                world(playerX + 9, playerY + 1, playerZ + 23)
+            ))
+        }
+
+        // 動物4のスポーン
+        for (let i = 0; i < count4; i++) {
+            mobs.spawn(animal4, randpos(
+                world(playerX - 9, playerY + 1, playerZ + 4),
+                world(playerX + 9, playerY + 1, playerZ + 23)
+            ))
+        }
+
         player.execute(
             "/give @p balloon"
         )

@@ -1098,33 +1098,33 @@ declare namespace mobs {
     function monster(name: MonsterMob): number;
 
 }
+//%
+declare class QueryTargetResult {
     //%
-    declare class QueryTargetResult {
-        //%
-        //% shim=.dimension
-        public dimension: number;
+    //% shim=.dimension
+    public dimension: number;
 
-        //%
-        //% shim=.yRot
-        public yRot: number;
+    //%
+    //% shim=.yRot
+    public yRot: number;
 
-        //%
-        //% shim=.uniqueId
-        public uniqueId: string;
+    //%
+    //% shim=.uniqueId
+    public uniqueId: string;
 
-        //%
-        //% shim=.x
-        public x: number;
+    //%
+    //% shim=.x
+    public x: number;
 
-        //%
-        //% shim=.y
-        public y: number;
+    //%
+    //% shim=.y
+    public y: number;
 
-        //%
-        //% shim=.z
-        public z: number;
+    //%
+    //% shim=.z
+    public z: number;
 
-    }
+}
 declare namespace player {
     /**
      * Returns the name of the current player (you)
@@ -1475,64 +1475,64 @@ declare namespace positions {
     function toCompassDirection(deg: number): CompassDirection;
 
 }
+/**
+ * A world coordinate that may be relative (~) or local (^) to the player position.
+ */
+//% color=#69B090
+//% snippet=pos(0,0,0) pySnippet=pos(0,0,0)
+declare class Position {
     /**
-     * A world coordinate that may be relative (~) or local (^) to the player position.
+     * Returns a string representation of this position
      */
-    //% color=#69B090
-    //% snippet=pos(0,0,0) pySnippet=pos(0,0,0)
-    declare class Position {
-        /**
-         * Returns a string representation of this position
-         */
-        //% help=positions/to-string
-        //% blockId="minecraftPositionToString" block="%position|to string"
-        //% blockNamespace=positions weight=110 color=#69B090
-        //% blockGap=60
-        //% shim=.toString
-        public toString(): string;
+    //% help=positions/to-string
+    //% blockId="minecraftPositionToString" block="%position|to string"
+    //% blockNamespace=positions weight=110 color=#69B090
+    //% blockGap=60
+    //% shim=.toString
+    public toString(): string;
 
-        /**
-         * Adds the offset and returns a new position
-         */
-        //%
-        //% shim=.add
-        public add(offset: Position): Position;
+    /**
+     * Adds the offset and returns a new position
+     */
+    //%
+    //% shim=.add
+    public add(offset: Position): Position;
 
-        /**
-         * Creates a new world position by converting this position to a world position
-         */
-        //% help=positions/to-world
-        //% promise
-        //% blockId=minecraftPositionToWorld block="%position|to world"
-        //% blockNamespace=positions weight=120 color=#69B090
-        //% shim=.toWorldAsync promise
-        public toWorld(): Position;
+    /**
+     * Creates a new world position by converting this position to a world position
+     */
+    //% help=positions/to-world
+    //% promise
+    //% blockId=minecraftPositionToWorld block="%position|to world"
+    //% blockNamespace=positions weight=120 color=#69B090
+    //% shim=.toWorldAsync promise
+    public toWorld(): Position;
 
-        /**
-         * Gets the value of the specified coordinate: x, y or z
-         * @param direction the axis for which to return the coordinate value
-         */
-        //% help=positions/get-value
-        //% blockId=minecraftPosGet block="%position|get value of %direction"
-        //% blockNamespace=positions weight=130 color=#69B090
-        //% shim=.getValue
-        public getValue(direction: Axis): number;
+    /**
+     * Gets the value of the specified coordinate: x, y or z
+     * @param direction the axis for which to return the coordinate value
+     */
+    //% help=positions/get-value
+    //% blockId=minecraftPosGet block="%position|get value of %direction"
+    //% blockNamespace=positions weight=130 color=#69B090
+    //% shim=.getValue
+    public getValue(direction: Axis): number;
 
-        /**
-         * Gets a value that indicates if the coordinate is relative to the user
-         */
-        //%
-        //% shim=.isRelative
-        public isRelative(direction: Axis): boolean;
+    /**
+     * Gets a value that indicates if the coordinate is relative to the user
+     */
+    //%
+    //% shim=.isRelative
+    public isRelative(direction: Axis): boolean;
 
-        /**
-         * Returns a position moved by the given blocks
-         */
-        //%
-        //% shim=.move
-        public move(direction: CardinalDirection, blocks: number): Position;
+    /**
+     * Returns a position moved by the given blocks
+     */
+    //%
+    //% shim=.move
+    public move(direction: CardinalDirection, blocks: number): Position;
 
-    }
+}
 declare namespace mobs {
     /**
      * Selects a set of players or mobs
@@ -1596,62 +1596,62 @@ declare namespace mobs {
     function parseSelector(str: string): TargetSelector;
 
 }
+/**
+ * A target selector
+ */
+//% snippet=mobs.target(NEAREST_PLAYER)
+//% pySnippet=mobs.target(NEAREST_PLAYER)
+declare class TargetSelector {
     /**
-     * A target selector
+     * Sets the base coordinates for this target selector
+     * @param p the coordinates at which this selector should be set
      */
-    //% snippet=mobs.target(NEAREST_PLAYER)
-    //% pySnippet=mobs.target(NEAREST_PLAYER)
-    declare class TargetSelector {
-        /**
-         * Sets the base coordinates for this target selector
-         * @param p the coordinates at which this selector should be set
-         */
-        //% help=mobs/selectors/at-coordinates
-        //% blockId=minecraftSelectorAtCoordinate block="%selector| set coordinate %p=minecraftCreateWorldPosition"
-        //% blockNamespace=mobs weight=30 group="Selectors"
-        //% shim=.atCoordinate
-        public atCoordinate(p: Position): void;
+    //% help=mobs/selectors/at-coordinates
+    //% blockId=minecraftSelectorAtCoordinate block="%selector| set coordinate %p=minecraftCreateWorldPosition"
+    //% blockNamespace=mobs weight=30 group="Selectors"
+    //% shim=.atCoordinate
+    public atCoordinate(p: Position): void;
 
-        /**
-         * Sets the maximum distance from this selector's base coordinates
-         * @param radius the maximum distance (in blocks) for this target selector, eg: 5
-         */
-        //% help=mobs/selectors/within-radius
-        //% blockId=minecraftSelectorWithinRadius block="%selector| set max radius %r"
-        //% blockNamespace=mobs weight=20 group="Selectors"
-        //% shim=.withinRadius
-        public withinRadius(radius: number): void;
+    /**
+     * Sets the maximum distance from this selector's base coordinates
+     * @param radius the maximum distance (in blocks) for this target selector, eg: 5
+     */
+    //% help=mobs/selectors/within-radius
+    //% blockId=minecraftSelectorWithinRadius block="%selector| set max radius %r"
+    //% blockNamespace=mobs weight=20 group="Selectors"
+    //% shim=.withinRadius
+    public withinRadius(radius: number): void;
 
-        /**
-         * Sets the minimum distance from this selector's base coordinates
-         * @param radius the minimum distance (in blocks) for this target selector, eg: 10
-         */
-        //% help=mobs/selectors/outside-radius
-        //% blockId=minecraftSelectorOutsideRadius block="%selector| set min radius %r"
-        //% blockNamespace=mobs weight=10 group="Selectors"
-        //% shim=.outsideRadius
-        public outsideRadius(radius: number): void;
+    /**
+     * Sets the minimum distance from this selector's base coordinates
+     * @param radius the minimum distance (in blocks) for this target selector, eg: 10
+     */
+    //% help=mobs/selectors/outside-radius
+    //% blockId=minecraftSelectorOutsideRadius block="%selector| set min radius %r"
+    //% blockNamespace=mobs weight=10 group="Selectors"
+    //% shim=.outsideRadius
+    public outsideRadius(radius: number): void;
 
-        /**
-         * Adds a rule to this target selector
-         * @param rule the rule to add, eg: "type"
-         * @param value the value for the rule, eg: "chicken"
-         */
-        //% help=mobs/selectors/add-rule
-        //% blockId=minecraftSelectorAddRule block="%selector| add rule %rule| equals %value"
-        //% blockNamespace=mobs weight=10 group="Selectors"
-        //% shim=.addRule
-        public addRule(rule: string, value: string): void;
+    /**
+     * Adds a rule to this target selector
+     * @param rule the rule to add, eg: "type"
+     * @param value the value for the rule, eg: "chicken"
+     */
+    //% help=mobs/selectors/add-rule
+    //% blockId=minecraftSelectorAddRule block="%selector| add rule %rule| equals %value"
+    //% blockNamespace=mobs weight=10 group="Selectors"
+    //% shim=.addRule
+    public addRule(rule: string, value: string): void;
 
-        /**
-         * Returns a string containing the game notation for this target selector
-         */
-        //% help=mobs/selectors/to-string
-        //% blockId=minecraftSelectorToString block="%selector|to string"
-        //% blockNamespace=mobs weight=9 group="Selectors"
-        //% shim=.toString
-        public toString(): string;
+    /**
+     * Returns a string containing the game notation for this target selector
+     */
+    //% help=mobs/selectors/to-string
+    //% blockId=minecraftSelectorToString block="%selector|to string"
+    //% blockNamespace=mobs weight=9 group="Selectors"
+    //% shim=.toString
+    public toString(): string;
 
-    }
+}
 
 // Auto-generated. Do not edit. Really.
