@@ -52,48 +52,6 @@ enum OnOff {
     Off
 }
 
-
-
-//% weight=1000000001000 color=#ffa500 icon="\uf1b3" block="ブロック設置"
-namespace ブロック設置 {
-    /**
-     * エージェントのカバンの指定したスロットを手に持つ
-     * @param pos スロット番号（1-27）, eg: 1
-     */
-    //% block="エージェントのカバンの %pos ばんめを手にもつ"
-    //% weight=90
-    export function getAgentItem(pos: number): void {
-        agent.setSlot(pos);
-    }
-
-    /**
-     * エージェントに指定した方向にブロックを置かせる
-     * @param dir 設置する方向
-     */
-    //% block="エージェントに %dir にブロックをおかせる"
-    //% dir.shadow=minecraftAgentSixDirection
-    //% weight=80
-    export function placeBlock(dir: SixDirection): void {
-        agent.place(dir);
-    }
-
-    /**
-     * エージェントのカバンに指定したブロックを入れる
-     * @param pos スロット番号（1-27）, eg: 1
-     * @param num ブロックの個数, eg: 64
-     * @param block ブロックの種類
-     */
-    //% block="エージェントのカバンの $pos ばんめに $num この $block をいれる"
-    //% pos.min=1 pos.max=27
-    //% num.min=1 num.max=64
-    //% block.shadow=minecraftBlock
-    //% block.defl=Block.Stone
-    //% weight=100
-    export function giveToAgent1(pos: number, num: number, block: number): void {
-        agent.setItem(block, num, pos);
-    }
-}
-
 //% weight=1000000001001 color=#dc143c icon="" block="エージェント"
 namespace エージェント操作 {
     /**
@@ -206,6 +164,48 @@ namespace エージェント操作 {
         player.onChat(command, handler);
     }
 }
+
+//% weight=1000000001000 color=#ff8c00 icon="\uf1b3" block="ブロック設置"
+namespace ブロック設置 {
+    /**
+     * エージェントのカバンの指定したスロットを手に持つ
+     * @param pos スロット番号（1-27）, eg: 1
+     */
+    //% block="エージェントのカバンの %pos ばんめを手にもつ"
+    //% weight=90
+    export function getAgentItem(pos: number): void {
+        agent.setSlot(pos);
+    }
+
+    /**
+     * エージェントに指定した方向にブロックを置かせる
+     * @param dir 設置する方向
+     */
+    //% block="エージェントに %dir にブロックをおかせる"
+    //% dir.shadow=minecraftAgentSixDirection
+    //% weight=80
+    export function placeBlock(dir: SixDirection): void {
+        agent.place(dir);
+    }
+
+    /**
+     * エージェントのカバンに指定したブロックを入れる
+     * @param pos スロット番号（1-27）, eg: 1
+     * @param num ブロックの個数, eg: 64
+     * @param block ブロックの種類
+     */
+    //% block="エージェントのカバンの $pos ばんめに $num この $block をいれる"
+    //% pos.min=1 pos.max=27
+    //% num.min=1 num.max=64
+    //% block.shadow=minecraftBlock
+    //% block.defl=Block.Stone
+    //% weight=100
+    export function giveToAgent1(pos: number, num: number, block: number): void {
+        agent.setItem(block, num, pos);
+    }
+}
+
+
 
 //% weight=1000000000999 color=#32cd32 icon="\uf279" block="ブロック"
 namespace ブロック {
@@ -367,9 +367,114 @@ namespace ブロック {
         const pos2 = posFromStartLocal(forward2, right2, up2);
         blocks.fill(block, pos1, pos2, FillOperation.Replace);
     }
+
+    /**
+     * スタート地点からのカメラ依存相対座標の範囲内でランダムな位置を返します（前・右・上）
+     * プレイヤーの向きに応じて、指定範囲内のランダムな座標を生成します
+     * @param forward1 開始前方向, eg: 0
+     * @param right1 開始右方向, eg: 0
+     * @param up1 開始上方向, eg: 0
+     * @param forward2 終了前方向, eg: 5
+     * @param right2 終了右方向, eg: 5
+     * @param up2 終了上方向, eg: 5
+     */
+    //% blockId=randposFromStartLocal block="スタートから まえ:$forward1|みぎ:$right1|うえ:$up1 から まえ:$forward2|みぎ:$right2|うえ:$up2 のランダムなばしょ"
+    //% inlineInputMode="inline"
+    //% weight=60
+    export function randposFromStartLocal(forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): Position {
+        if (!isStartSet) {
+            // 自動的にプレイヤーの位置でスタート地点を初期化
+            setStartPositionFromPlayer();
+        }
+
+        const pos1 = posFromStartLocal(forward1, right1, up1);
+        const pos2 = posFromStartLocal(forward2, right2, up2);
+        return randpos(pos1, pos2);
+    }
 }
 
-//% weight=1000000000000 color=#00bfff icon="" block="ミッション"
+//% weight=1000000000900 color=#008000 icon="" block="モブ"
+namespace モブ {
+
+    /**
+     * スタート地点からの相対座標（前・右・上）にモブをスポーンさせる
+     * ブロックnamespaceで設定したスタート地点を基準にします
+     * @param mob スポーンさせるモブの種類
+     * @param forward 前方向の距離, eg: 0
+     * @param right 右方向の距離, eg: 0
+     * @param up 上方向の距離, eg: 0
+     */
+    //% block="モブ %mob を スタートちてんから まえ:%forward|みぎ:%right|うえ:%up にスポーンさせる"
+    //% mob.shadow=minecraftAnimal
+    //% mob.defl=CHICKEN
+    //% inlineInputMode="inline"
+    //% weight=95
+    //% forceStatement
+    export function spawnMobFromStart(mob: number, forward: number, right: number, up: number): void {
+        const position = ブロック.posFromStartLocal(forward, right, up);
+        mobs.spawn(mob, position);
+    }
+
+    /**
+     * スタート地点からの相対座標範囲内のランダムな位置にモブをスポーンさせる
+     * ブロックnamespaceで設定したスタート地点を基準にします
+     * @param mob スポーンさせるモブの種類
+     * @param forward1 開始前方向, eg: 0
+     * @param right1 開始右方向, eg: 0
+     * @param up1 開始上方向, eg: 0
+     * @param forward2 終了前方向, eg: 5
+     * @param right2 終了右方向, eg: 5
+     * @param up2 終了上方向, eg: 5
+     */
+    //% block="モブ %mob を スタートから まえ:%forward1|みぎ:%right1|うえ:%up1 から まえ:%forward2|みぎ:%right2|うえ:%up2 のランダムなばしょにスポーンさせる"
+    //% mob.shadow=minecraftAnimal
+    //% mob.defl=CHICKEN
+    //% inlineInputMode="inline"
+    //% weight=92
+    //% forceStatement
+    export function spawnMobRandomFromStart(mob: number, forward1: number, right1: number, up1: number, forward2: number, right2: number, up2: number): void {
+        const position = ブロック.randposFromStartLocal(forward1, right1, up1, forward2, right2, up2);
+        mobs.spawn(mob, position);
+    }
+
+    /**
+     * 指定したターゲットにポーション効果を付与する
+     * @param effect 付与する効果
+     * @param target 効果を付与する対象
+     * @param duration 効果の持続時間（秒）, eg: 10
+     * @param amplifier 効果の強さ（レベル）, eg: 1
+     */
+    //% block="ポーションこうか %effect を %target にあたえる|じかん %duration びょう つよさ %amplifier"
+    //% effect.shadow=minecraftEffectField
+    //% target.shadow=minecraftTarget
+    //% duration.min=0 duration.max=600 duration.defl=10
+    //% amplifier.min=0 amplifier.max=255 amplifier.defl=1
+    //% weight=90
+    //% inlineInputMode="inline"
+    //% expandableArgumentMode="enabled"
+    //% forceStatement
+    export function giveEffect(effect: number, target: TargetSelector, duration?: number, amplifier?: number): void {
+        // デフォルト値の設定
+        if (duration === undefined) duration = 10;
+        if (amplifier === undefined) amplifier = 1;
+
+        mobs.applyEffect(effect, target, duration, amplifier);
+    }
+
+    /**
+     * 指定したターゲットからすべてのポーション効果を消去する
+     * @param target 効果を消去する対象
+     */
+    //% block="%target からすべてのポーションこうかをけす"
+    //% target.shadow=minecraftTarget
+    //% weight=80
+    //% forceStatement
+    export function removeAllEffects(target: TargetSelector): void {
+        mobs.clearEffect(target);
+    }
+}
+
+//% weight=1000000000000 color=#4f6fde icon="" block="ミッション"
 namespace 先生用 {
     export function relativeToWorld(baseX: number, baseY: number, baseZ: number, offsetX: number, offsetY: number, orientation: number): Position {
         let worldX = baseX;
@@ -663,7 +768,8 @@ namespace 先生用 {
     ];
 }
 
-//% weight=100000000101 color=#4682b4 icon="\uf11b" block="遊び用カテゴリ"
+
+//% weight=100000000101 color=#800080 icon="\uf11b" block="遊び用カテゴリ"
 namespace 遊び用 {
     /**
      * カスタマイズ可能な家を建設する
