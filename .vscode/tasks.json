@@ -1,0 +1,51 @@
+{
+  // VSCodeタスク定義
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // TypeScript型チェック
+      "label": "TypeScript: 型チェック",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      // tsconfig自動更新
+      "label": "tsconfig: 自動更新",
+      "type": "shell",
+      "command": "npm run update-tsconfig",
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    },
+    {
+      // tsconfig自動更新（確認なし）
+      "label": "tsconfig: 自動更新（確認なし）",
+      "type": "shell",
+      "command": "npm run update-tsconfig:auto",
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    }
+  ]
+}

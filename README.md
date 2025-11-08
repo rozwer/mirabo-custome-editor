@@ -1,16 +1,225 @@
-# mirabo-custome-editor
+# Mirabo Custom Editor
 
-MakeCode for Minecraftのカスタムブロックエディタ
+MakeCode for Minecraft用のカスタムブロック拡張プロジェクトです。
 
-## プロジェクトのセットアップ
+## 📁 プロジェクト構成
+
+```
+mirabo-custome-editor/
+├── custome.ts              # カスタムブロック定義（メイン）
+├── main.ts                 # 実行時コード
+├── tsconfig.json           # TypeScript設定
+├── package.json            # プロジェクト設定
+├── MAKECODE_KNOWHOW.md     # MakeCode開発ノウハウ（完全ガイド）
+├── references/             # 型定義ファイル
+│   └── core/              # Minecraft MakeCode コア定義
+└── scripts/               # 自動化スクリプト
+    ├── update-tsconfig.js # tsconfig自動更新スクリプト
+    └── README.md          # スクリプトの使い方
+```
+
+## 🚀 クイックスタート
+
+### 必要な環境
+
+- Node.js (v14以上)
+- npm または yarn
+
+### セットアップ
 
 ```bash
 # 依存関係のインストール
 npm install
 
+# TypeScriptファイルのチェック
+npm run update-tsconfig
+
 # TypeScriptの型チェック
 npx tsc --noEmit
 ```
+
+## 📚 ドキュメント
+
+### [MAKECODE_KNOWHOW.md](MAKECODE_KNOWHOW.md)
+
+TypeScript初心者およびMakeCode開発初心者向けの総合ガイドです。以下の内容を網羅しています：
+
+#### 基礎編
+1. MakeCodeの基本概念
+2. アノテーションシステム
+3. ブロック定義の基本
+
+#### アノテーション完全リファレンス
+4. ブロック定義アノテーション
+5. パラメーター修飾子（13種類のfieldEditorを含む）
+6. レイアウト制御
+7. 名前空間とカテゴリ
+8. 高度な機能
+
+#### 実践編
+9. Enumとドロップダウン
+10. 座標系とPosition
+11. 実装パターン集（7つの典型パターン）
+12. トラブルシューティング（7つの一般的問題と解決策）
+
+## 🛠️ 開発ワークフロー
+
+### 1. 新しいブロックの追加
+
+`custome.ts` に新しい関数を追加します：
+
+```typescript
+//% weight=100 color=#ffa500 block="マイカテゴリ"
+namespace マイカテゴリ {
+    //% block="こんにちは %name"
+    export function sayHello(name: string): void {
+        player.say(`こんにちは、${name}さん！`);
+    }
+}
+```
+
+### 2. TypeScriptファイルの管理
+
+新しい `.ts` ファイルを追加した場合、以下のコマンドで自動的に `tsconfig.json` に追加できます：
+
+```bash
+# 対話モード（確認あり）
+npm run update-tsconfig
+
+# 自動モード（確認なし）
+npm run update-tsconfig:auto
+```
+
+### 3. 型チェック
+
+```bash
+# TypeScriptの型チェック
+npx tsc --noEmit
+```
+
+## 📖 主要ファイルの説明
+
+### custome.ts
+
+カスタムブロックの定義ファイルです。以下のような名前空間が含まれています：
+
+- **ブロック設置** - エージェントのカバン操作、ブロック設置
+- **エージェント操作** - エージェントの移動、回転、プレイヤーとの同期
+- **先生用** - 課題生成、迷路作成
+- **遊び用カテゴリ** - 家、マンション、エレベーター、動物園の建設
+
+### main.ts
+
+実行時のコードです。プレイヤーのアクション（アイテム使用、矢の発射など）に対するイベントハンドラが定義されています：
+
+- アイテム使用時の特殊効果
+- 矢のテレポート機能
+- スライムブロック上での浮遊効果
+- など
+
+### references/core/
+
+Minecraft MakeCodeのコア型定義ファイルです。以下が含まれます：
+
+- `enum.d.ts` - Block, Item, Mob などの定義
+- `pxt-core.d.ts` - 基本的な型定義
+- `agent.ts`, `blocks.ts`, `player.ts` など - API定義
+
+## 🔧 スクリプト
+
+### update-tsconfig
+
+プロジェクト内の全TypeScriptファイルをスキャンし、`tsconfig.json` の `include` に含まれていないファイルを検出・追加します。
+
+詳細は [scripts/README.md](scripts/README.md) を参照してください。
+
+## 📝 開発のヒント
+
+### よく使うアノテーション
+
+```typescript
+// ブロックテキスト定義
+//% block="say %message"
+
+// デフォルト値
+//% message.defl="Hello"
+
+// Shadow Block
+//% message.shadow=text
+
+// 表示順序（大きいほど上）
+//% weight=100
+
+// グループ化
+//% group="Modify"
+
+// ヘルプリンク
+//% help=player/say
+```
+
+### Enumの定義
+
+```typescript
+enum Direction {
+    //% block="北"
+    North,
+    //% block="南"
+    South,
+    //% block="東"
+    East,
+    //% block="西"
+    West
+}
+```
+
+### 座標の扱い
+
+```typescript
+// プレイヤーの位置取得
+let pos = player.position();
+let x = pos.getValue(Axis.X);
+let y = pos.getValue(Axis.Y);
+let z = pos.getValue(Axis.Z);
+
+// ワールド座標
+world(x, y, z)
+
+// 相対座標
+pos(x, y, z)  // ~x ~y ~z
+```
+
+## 🐛 トラブルシューティング
+
+### ブロックが表示されない
+
+1. `export` キーワードが付いているか確認
+2. `blockHidden=1` が設定されていないか確認
+3. アノテーションの構文エラーがないか確認
+
+### 型エラーが出る
+
+```bash
+# tsconfigにファイルが含まれているか確認
+npm run update-tsconfig
+
+# 型チェック
+npx tsc --noEmit
+```
+
+### 日本語が文字化けする
+
+ファイルのエンコーディングを UTF-8 (BOM無し) で保存してください。
+
+## 📄 ライセンス
+
+ISC
+
+## 🔗 リンク
+
+- [MakeCode for Minecraft](https://minecraft.makecode.com/)
+- [MakeCode公式ドキュメント](https://makecode.com/defining-blocks)
+- [TypeScript公式](https://www.typescriptlang.org/)
+- [Minecraft Education](https://education.minecraft.net/)
 
 ## Git使用ガイド（初心者向け）
 

@@ -1,0 +1,34 @@
+{
+  // VSCodeで推奨する拡張機能
+  "recommendations": [
+    // TypeScript言語サポート（通常は組み込み済み）
+    "ms-vscode.vscode-typescript-next",
+
+    // ESLint（コード品質チェック）
+    "dbaeumer.vscode-eslint",
+
+    // Prettier（コードフォーマッター）
+    "esbenp.prettier-vscode",
+
+    // GitLens（Git強化）
+    "eamodio.gitlens",
+
+    // Error Lens（エラー表示強化）
+    "usernamehw.errorlens",
+
+    // Path Intellisense（パス補完）
+    "christian-kohler.path-intellisense",
+
+    // Better Comments（コメント強化）
+    "aaron-bond.better-comments",
+
+    // Markdown All in One（Markdown編集）
+    "yzhang.markdown-all-in-one",
+
+    // Japanese Language Pack（日本語化）
+    "ms-ceintl.vscode-language-pack-ja"
+  ],
+
+  // 非推奨の拡張機能（競合する可能性があるもの）
+  "unwantedRecommendations": []
+}

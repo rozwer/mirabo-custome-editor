@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update-tsconfig": "node scripts/update-tsconfig.js",
+    "update-tsconfig:auto": "AUTO_APPROVE=true node scripts/update-tsconfig.js"
   },
   "repository": {
     "type": "git",

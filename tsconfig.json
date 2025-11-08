@@ -16,6 +16,7 @@
   },
   "include": [
     "custome.ts",
+    "main.ts",
     "references/**/*.ts",
     "references/**/*.d.ts"
   ],

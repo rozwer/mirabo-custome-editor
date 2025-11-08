@@ -1,0 +1,83 @@
+{
+  // ファイルエクスプローラーで非表示にするファイル・フォルダ
+  "files.exclude": {
+    // 設定・ビルド関連ファイル（編集不要）
+    "tsconfig.json": true,
+    "package.json": true,
+    "package-lock.json": true,
+
+    // ライセンスとGit設定
+    "LICENSE": true,
+    ".gitignore": true,
+
+    // node_modules（依存パッケージ）
+    "node_modules": true,
+
+    // ビルド成果物
+    "dist": true,
+    "build": true,
+    "*.js.map": true,
+
+    // その他の設定ファイル
+    ".DS_Store": true,
+    "Thumbs.db": true,
+    ".eslintrc.*": true,
+    ".prettierrc.*": true
+  },
+
+  // 検索から除外するファイル・フォルダ
+  "search.exclude": {
+    "node_modules": true,
+    "dist": true,
+    "build": true,
+    "*.js.map": true,
+    "package-lock.json": true
+  },
+
+  // ファイル監視から除外（パフォーマンス向上）
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+
+  // TypeScript設定
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // エディタ設定
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  // ファイルのエンコーディング（文字化け防止）
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": false,
+
+  // 行末の設定
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // TypeScriptファイルの自動整形
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true
+  },
+
+  // JSONファイルの自動整形
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+
+  // Markdownファイルの設定
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  }
+}
